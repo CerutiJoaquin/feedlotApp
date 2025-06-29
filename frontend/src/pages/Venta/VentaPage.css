@@ -1,0 +1,137 @@
+
+.venta-page {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 64px);
+}
+
+.venta-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(4px);
+  border-end-start-radius: 2%;
+  border-end-end-radius: 2%;
+}
+
+/* Formularios de venta y cliente */
+.form-venta,
+.form-cliente {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+/* Líneas de animales en el formulario de venta */
+.animal-line {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.animal-line input {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 0.5rem;
+}
+
+/* Botones para añadir/quitar animales */
+.btn-add,
+.btn-remove {
+  background: #4caf50;
+  color: white;
+  border: none;
+  padding: 0.3rem 0.6rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+
+.btn-remove {
+  background: #e53935;
+}
+
+/* Campos de formulario generales */
+.form-venta select,
+.form-venta input[type="number"],
+.form-venta input[type="date"],
+.form-venta button,
+.form-cliente input,
+.form-cliente button {
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid #ccc;
+}
+
+/* Botones principales de formularios */
+.form-venta button,
+.form-cliente button {
+  background: #4caf50;
+  color: #fff;
+  cursor: pointer;
+}
+
+/* Mensajes de éxito y error */
+.msg {
+  color: green;
+  margin-top: 0.5rem;
+}
+
+.error {
+  color: red;
+  margin-top: 0.5rem;
+}
+
+/* Contenedor de tablas */
+.table-container {
+  overflow-x: auto;
+  margin-top: 1rem;
+}
+
+.list-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.list-table th,
+.list-table td {
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  padding: 0.5rem;
+  text-align: center;
+}
+
+/* Inputs dentro de las tablas (inline edit) */
+.list-table input {
+  width: 100%;
+  padding: 0.25rem;
+  box-sizing: border-box;
+}
+
+/* Botones de edición en listado */
+.btn-edit,
+.btn-save,
+.btn-cancel {
+  padding: 0.3rem 0.6rem;
+  margin: 0 0.2rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-edit {
+  background: #1976d2;
+  color: #fff;
+}
+
+.btn-save {
+  background: #4caf50;
+  color: #fff;
+}
+
+.btn-cancel {
+  background: #e53935;
+  color: #fff;
+}

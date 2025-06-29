@@ -1,0 +1,63 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap");
+.topbar {
+  height: 8%;
+  background: #4caf50;
+  display: flex;
+  align-items: center;
+  padding: 0 1.5rem;
+  gap: 1rem;
+  color: white;
+  box-shadow: 2px 5px 10px rgba(0, 0, 0, 0.7);
+}
+
+.topbar__logo {
+  font-family: "Montserrat", sans-serif;
+  font-size: 1.95rem;
+  font-weight: 800;
+  padding-right: 3rem;
+}
+
+.topbar__search {
+  flex: none;
+  width: 50%;
+  max-width: 600px;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  outline: none;
+}
+
+.topbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-left: auto;
+}
+
+.topbar__bell {
+  font-size: 1.25rem;
+  cursor: pointer;
+}
+
+.topbar__user {
+  justify-content: right;
+  font-weight: 700;
+}
+
+.topbar__avatar {
+  background: white;
+  color: #4caf50;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+@media (max-width: 768px) {
+  .topbar__search {
+    width: 70%;
+  }
+}

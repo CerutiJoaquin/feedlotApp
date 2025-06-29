@@ -1,0 +1,7 @@
+{
+  "name": "feedlotApp",
+  "version": "1.0.0",
+  "dependencies": {
+    "vite": "^6.3.5"
+  }
+}

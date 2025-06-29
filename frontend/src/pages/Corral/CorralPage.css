@@ -1,0 +1,128 @@
+.corral-page {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 64px);
+}
+
+.corral-content {
+  position: relative;
+  overflow-x: auto;
+  overflow-y: auto;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(2px);
+  border-end-start-radius: 2%;
+  border-end-end-radius: 2%;
+}
+
+.corral-content h2 {
+  margin-bottom: 1rem;
+  font-family: "Poppins", sans-serif;
+  text-align: center;
+}
+
+/* Formularios */
+.form-crear,
+.detail-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 400px;
+  margin: 0 auto;
+}
+.form-crear input,
+.form-crear select,
+.form-crear button,
+.detail-form input,
+.detail-form button {
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid #ccc;
+}
+.form-crear button,
+.detail-form button {
+  background: #4caf50;
+  color: #fff;
+  cursor: pointer;
+}
+.msg {
+  color: green;
+  margin-top: 0.5rem;
+}
+.error {
+  color: red;
+  margin-top: 0.5rem;
+}
+
+/* Listar */
+.list-container {
+  overflow-x: auto;
+}
+.list-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.list-table th,
+.list-table td {
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  padding: 0.5rem;
+  text-align: center;
+}
+
+/* Detalle */
+.detail-card {
+  max-width: 800px;
+  margin: 0 auto;
+  background: rgba(255, 255, 255, 0.65);
+  border-radius: 0.75rem;
+  padding: 1rem;
+}
+.detail-form {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+.detail-form input {
+  flex: 1;
+}
+.detail-form button {
+  padding: 0 0.75rem;
+  border: none;
+}
+.detail-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+}
+.detail-table th,
+.detail-table td {
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  padding: 0.5rem;
+  text-align: center;
+}
+.detail-card h4 {
+  margin-top: 1rem;
+  font-family: "Poppins", sans-serif;
+}
+
+/* Scrollable list for assigned animals */
+.scroll-list {
+  max-height: 150px;
+  overflow-y: auto;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.scroll-item {
+  padding: 0.5rem;
+  margin-bottom: 0.25rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  font-size: 0.9rem;
+}
+
+.scroll-item:last-child {
+  margin-bottom: 0;
+  border-bottom: none;
+}

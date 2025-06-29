@@ -1,0 +1,73 @@
+
+.tabbar {
+  display: flex;
+  justify-content: center;  
+  background: rgba(203, 219, 199, 0.6);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+  padding: 0.5rem 1rem;
+  position: relative;
+  z-index: 1;
+}
+
+.tabbar__item {
+  position: relative;
+  margin: 0 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center; 
+}
+
+.tabbar__btn {
+  background: none;
+  box-shadow: 0 2px 6px rgba(100,0,0,0.2);
+  border: none;
+  padding: 0.5rem 0.95rem;
+  font-size: 1.2rem;
+  font-weight: 400;
+  cursor: pointer;
+  color: #1c1b1b;
+  display: flex;
+  align-items: center;
+  justify-content: center;   
+  gap: 0.25rem;
+  border-radius: 0.375rem;
+  transition: background 0.2s;
+}
+
+.tabbar__btn:hover {
+  background: rgba(0,0,0,0.05);
+}
+
+.tabbar__item--active > .tabbar__btn {
+  color: #377f3a;
+  background: rgba(76,175,80,0.15);
+}
+
+.tabbar__dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 0.55rem;
+  background: rgba(255,255,255,0.8);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  border-bottom-left-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
+  padding: 0.3rem 0;
+}
+
+.tabbar__dropdown-btn {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 1rem;
+  background: none;
+  border: none;
+  text-align: center;
+  cursor: pointer;
+  color: #333;
+}
+
+.tabbar__dropdown-btn:hover {
+  background: rgba(0,0,0,0.05);
+}
