@@ -3,8 +3,10 @@ package gestor.feedlotapp.entities;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -37,7 +39,7 @@ public class Animal {
     private String estadoSalud;
     @ManyToOne
     @JoinColumn(name = "corral_id") 
-    @JsonIgnoreProperties("animales")
+    @JsonIgnore
     private Corral corral;
 
     @ManyToOne
@@ -83,18 +85,21 @@ public class Animal {
         this.tratamientos = tratamientos;
     }
 
-    public Animal(int animalId, String caravana, String raza, int edad, float pesoActual,
-                  boolean sexo, String estadoSalud) {
-        this.animalId = animalId;
-        this.caravana = caravana;
-        this.raza = raza;
-        this.edad = edad;
-        this.pesoActual = pesoActual;
-        this.sexo = sexo;
-        this.estadoSalud = estadoSalud;
-    }
 
     // Setters y Getters
+    @JsonProperty("corralId")
+    public Integer getCorralId() {
+        return corral != null
+                ? corral.getCorralId()
+                : null;
+    }
+
+    public void setCorralId(Integer id) {
+        if (this.corral == null) {
+            this.corral = new Corral();
+        }
+        this.corral.setCorralId(id);
+    }
 
     public int getAnimalId() {
         return animalId;
@@ -156,7 +161,7 @@ public class Animal {
         return corral;
     }
 
-    public void setCorral_(Corral corral) {
+    public void setCorral(Corral corral) {
         this.corral = corral;
     }
 

@@ -2,98 +2,18 @@ import React, { useState, useEffect } from "react";
 import TabBar from "../../components/layout/TabBar/TabBar";
 import {
   getAllAnimals,
-  createAnimal,
   getAnimalByCaravana,
+  getAnimalById,
+  createAnimal,
   updateAnimal,
+  trace,
+  getPesajesByAnimal,
+  getTratamientosByAnimal,
+  addTreatment,
 } from "../../services/animalService";
 import "./AnimalPage.css";
 
 export default function AnimalPage() {
-   
-  const dummyAnimals = [
-    { animalId: 101, caravana: "#A101", raza: "Angus",     edad: 12, pesoActual: 350, sexo: true,  estadoSalud: "Buena" },
-    { animalId: 102, caravana: "#A102", raza: "Hereford",  edad: 14, pesoActual: 370, sexo: false, estadoSalud: "Buena" },
-    { animalId: 103, caravana: "#A103", raza: "Brahman",   edad: 10, pesoActual: 330, sexo: true,  estadoSalud: "Regular" },
-    { animalId: 104, caravana: "#A104", raza: "Charolais", edad: 16, pesoActual: 390, sexo: true,  estadoSalud: "Buena" },
-    { animalId: 105, caravana: "#A105", raza: "Limousin",  edad: 11, pesoActual: 340, sexo: false, estadoSalud: "Mala"    },
-    { animalId: 106, caravana: "#A106", raza: "Simmental",edad: 13, pesoActual: 360, sexo: true,  estadoSalud: "Buena" },
-    { animalId: 107, caravana: "#A107", raza: "Gyr",       edad: 15, pesoActual: 380, sexo: false, estadoSalud: "Regular" },
-    { animalId: 108, caravana: "#A108", raza: "Holstein",  edad: 9,  pesoActual: 320, sexo: false, estadoSalud: "Buena" },
-    { animalId: 109, caravana: "#A109", raza: "Pardo Suizo",edad: 17,pesoActual: 400, sexo: true,  estadoSalud: "Buena" },
-    { animalId: 110, caravana: "#A110", raza: "Shorthorn", edad: 8,  pesoActual: 310, sexo: true,  estadoSalud: "Regular" },
-  ];
-  const [treatments, setTreatments] = useState([
-    {
-      id: 1,
-      fecha: "2025-05-15",
-      animalId: 102,
-      caravana: "#A102",
-      tipo: "Vacunación",
-      dosis: "5 ml",
-      aplicadoPor: "Dr. Pérez",
-      observaciones: "Sin reacciones",
-    },
-    {
-      id: 2,
-      fecha: "2025-05-15",
-      animalId: 103,
-      caravana: "#A103",
-      tipo: "Antibiótico",
-      dosis: "10 ml",
-      aplicadoPor: "Dr. Pérez",
-      observaciones: "Fiebre leve post tratamiento",
-    },
-    {
-      id: 3,
-      fecha: "2025-05-14",
-      animalId: 108,
-      caravana: "#A108",
-      tipo: "Desparasitación",
-      dosis: "8 ml",
-      aplicadoPor: "Dr. Salas",
-      observaciones: "Control programado",
-    },
-    {
-      id: 4,
-      fecha: "2025-05-14",
-      animalId: 110,
-      caravana: "#A110",
-      tipo: "Vitaminas",
-      dosis: "6 ml",
-      aplicadoPor: "Dr. Salas",
-      observaciones: "Recuperación lenta",
-    },
-    {
-      id: 5,
-      fecha: "2025-05-13",
-      animalId: 115,
-      caravana: "#A115",
-      tipo: "Antibiótico",
-      dosis: "9 ml",
-      aplicadoPor: "María Gómez",
-      observaciones: "Herida en pata tratada",
-    },
-    {
-      id: 6,
-      fecha: "2025-05-13",
-      animalId: 116,
-      caravana: "#A116",
-      tipo: "Vacunación",
-      dosis: "5 ml",
-      aplicadoPor: "María Gómez",
-      observaciones: "Ligeras reacciones cutáneas",
-    },
-    {
-      id: 7,
-      fecha: "2025-05-12",
-      animalId: 119,
-      caravana: "#A119",
-      tipo: "Desparasitación",
-      dosis: "7 ml",
-      aplicadoPor: "Dr. Herrera",
-      observaciones: "Sin reacciones",
-    },
-  ]);
   const tabs = [
     { key: "ingreso", label: "Ingresar" },
     { key: "listar", label: "Listar" },
@@ -111,12 +31,29 @@ export default function AnimalPage() {
 
   const [activeTab, setActiveTab] = useState("listar");
 
-  // Estado para Listar
- const [list, setList] = useState([]);
+  // ─── LISTAR ──────────────────────────────────────────────────────────
+  const [list, setList] = useState([]);
   const [loadingList, setLoadingList] = useState(false);
   const [errorList, setErrorList] = useState("");
 
-  // Estado para Ingreso
+  useEffect(() => {
+    if (activeTab === "listar") {
+      setLoadingList(true);
+      getAllAnimals()
+        .then(({ data }) => {
+          setList(data);
+          setErrorList("");
+        })
+        .catch(() => {
+          setErrorList("Error al cargar animales");
+        })
+        .finally(() => {
+          setLoadingList(false);
+        });
+    }
+  }, [activeTab]);
+
+  // ─── INGRESO ─────────────────────────────────────────────────────────
   const [newAnimal, setNewAnimal] = useState({
     caravana: "",
     raza: "",
@@ -129,90 +66,6 @@ export default function AnimalPage() {
   const [msgIngreso, setMsgIngreso] = useState("");
   const [errorIngreso, setErrorIngreso] = useState("");
 
-  // Estado para Trazabilidad
-  const [query, setQuery] = useState("");
-  const [traceResult, setTraceResult] = useState(null);
-  const [errorTrace, setErrorTrace] = useState("");
-  const [loadingTrace, setLoadingTrace] = useState(false);
-  // Mock de Trazabilidad
-  const mockTraceResult = {
-    animalId: 103,
-    caravana: "#A103",
-    raza: "Angus",
-    edad: 8,
-    pesoActual: 425,
-    sexo: true,
-    estadoSalud: "Buena",
-    pesajes: [
-      { pesajeId: 1, fecha: "2025-01-01", peso: 280 },
-      { pesajeId: 2, fecha: "2025-03-02", peso: 315 },
-      { pesajeId: 3, fecha: "2025-05-01", peso: 345 },
-      { pesajeId: 4, fecha: "2025-06-30", peso: 375 },
-      { pesajeId: 5, fecha: "2025-08-29", peso: 400 },
-      { pesajeId: 6, fecha: "2025-10-28", peso: 425 },
-    ],
-    tratamientos: [
-      {
-        registroTratamientoId: 1,
-        fecha: "2025-01-01",
-        medicamento: "Ivermectina",
-        dosis: "10 ml",
-      },
-      {
-        registroTratamientoId: 2,
-        fecha: "2025-01-15",
-        medicamento: "Antibiótico LA",
-        dosis: "8 ml",
-      },
-      {
-        registroTratamientoId: 3,
-        fecha: "2025-03-01",
-        medicamento: "Vitamina ADE",
-        dosis: "5 ml",
-      },
-      {
-        registroTratamientoId: 4,
-        fecha: "2025-05-10",
-        medicamento: "Antiparasitario B",
-        dosis: "12 ml",
-      },
-      {
-        registroTratamientoId: 5,
-        fecha: "2025-07-15",
-        medicamento: "Rehidratante oral",
-        dosis: "6 ml",
-      },
-    ],
-  };
-
-  // Estado para Pesaje
-  const [pesoCaravana, setPesoCaravana] = useState("");
-  const [newPeso, setNewPeso] = useState("");
-  const [msgPesaje, setMsgPesaje] = useState("");
-  const [errorPesaje, setErrorPesaje] = useState("");
-
-  // Estado para “Tratamiento
-  const [tratCaravana, setTratCaravana] = useState("");
-  const [nuevoEstado, setNuevoEstado] = useState("");
-  const [msgTrat, setMsgTrat] = useState("");
-  const [errorTrat, setErrorTrat] = useState("");
-
-  // Cada vez que se entra a la pestaña listar, se cargan los animales
-  useEffect(() => {
-    if (activeTab === "listar") {
-      setLoadingList(true);
-      // Simulamos delay de carga
-      setTimeout(() => {
-        setList(dummyAnimals);
-        setErrorList("");
-        setLoadingList(false);
-      }, 500);
-    }
-  }, [activeTab]);
-
-  // Funciones de envío
-
-  // Ingreso
   const handleIngreso = async (e) => {
     e.preventDefault();
     setMsgIngreso("");
@@ -221,11 +74,11 @@ export default function AnimalPage() {
       await createAnimal({
         caravana: newAnimal.caravana,
         raza: newAnimal.raza,
-        edad: newAnimal.edad,
+        edad: parseInt(newAnimal.edad, 10),
         pesoActual: parseFloat(newAnimal.pesoActual),
         sexo: newAnimal.sexo,
         estadoSalud: newAnimal.estadoSalud,
-        corral: newAnimal.corral,
+        corral: { corralId: parseInt(newAnimal.corral, 10) },
       });
       setMsgIngreso("Animal creado con éxito");
       setNewAnimal({
@@ -238,58 +91,61 @@ export default function AnimalPage() {
         corral: "",
       });
     } catch {
-     // setErrorIngreso("Error al crear animal");
-     setMsgIngreso("Animal creado con éxito");
+      setErrorIngreso("Error al crear animal");
     }
   };
 
-  // Trazabilidad
-  const handleTrace = (e) => {
-    e.preventDefault();
-    setErrorTrace("");
-    setLoadingTrace(true);
-    setTimeout(() => {
-      setTraceResult(mockTraceResult);
-      setLoadingTrace(false);
-    }, 500);
-  };
-  /*const handleTrace = async (e) => {
+  // ─── TRAZABILIDAD ────────────────────────────────────────────────────
+  const [query, setQuery] = useState("");
+  const [traceResult, setTraceResult] = useState(null);
+  const [loadingTrace, setLoadingTrace] = useState(false);
+  const [errorTrace, setErrorTrace] = useState("");
+
+  const handleTrace = async (e) => {
     e.preventDefault();
     if (!query.trim()) return;
     setLoadingTrace(true);
-    setErrorTrace("");
     setTraceResult(null);
+    setErrorTrace("");
     try {
-      const res = await getAnimalByCaravana(query.trim()) || getAnimalById(query.trim());
+      const res = await trace(query.trim());
       setTraceResult(res.data);
     } catch {
       setErrorTrace("Animal no encontrado");
     } finally {
       setLoadingTrace(false);
     }
-  };*/
+  };
 
-  // Pesaje
+  // ─── PESAJE ──────────────────────────────────────────────────────────
+  const [pesoCaravana, setPesoCaravana] = useState("");
+  const [newPeso, setNewPeso] = useState("");
+  const [msgPesaje, setMsgPesaje] = useState("");
+  const [errorPesaje, setErrorPesaje] = useState("");
+
   const handlePesaje = async (e) => {
     e.preventDefault();
     setMsgPesaje("");
     setErrorPesaje("");
     if (!pesoCaravana.trim() || !newPeso.trim()) return;
     try {
-      const { data: a } =
+      const { data: animal } =
         (await getAnimalByCaravana(pesoCaravana.trim())) ||
-        getAnimalById(pesoCaravana.trim());
-      await updateAnimal(a.animalId, { ...a, pesoActual: parseFloat(newPeso) });
+        (await getAnimalById(pesoCaravana.trim()));
+      await updateAnimal(animal.animalId, {
+        ...animal,
+        pesoActual: parseFloat(newPeso),
+      });
       setMsgPesaje("Peso actualizado");
       setPesoCaravana("");
       setNewPeso("");
     } catch {
-      //setErrorPesaje("Error al actualizar peso");
-      setMsgPesaje("Peso actualizado");
+      setErrorPesaje("Error al actualizar peso");
     }
   };
 
-  // Tratamiento
+  // ─── TRATAMIENTO ──────────────────────────────────────────────────────
+  const [treatments, setTreatments] = useState([]);
   const [treatmentForm, setTreatmentForm] = useState({
     animalId: "",
     caravana: "",
@@ -298,24 +154,37 @@ export default function AnimalPage() {
     aplicadoPor: "",
     observaciones: "",
   });
-  const handleRegisterTreatment = (e) => {
+  const [msgTrat, setMsgTrat] = useState("");
+  const [errorTrat, setErrorTrat] = useState("");
+
+  const handleRegisterTreatment = async (e) => {
     e.preventDefault();
-    const nuevaFecha = new Date().toISOString().split("T")[0];
-    const nuevo = {
-      id: treatments.length + 1,
-      fecha: nuevaFecha,
-      ...treatmentForm,
-    };
-    setTreatments([nuevo, ...treatments]);
-    setTreatmentForm({
-      animalId: "",
-      caravana: "",
-      tipo: "",
-      dosis: "",
-      aplicadoPor: "",
-      observaciones: "",
-    });
-    setMsgTrat("Tratamiento registrado");
+    setMsgTrat("");
+    setErrorTrat("");
+    try {
+      await addTreatment(parseInt(treatmentForm.animalId, 10), {
+        caravana: treatmentForm.caravana,
+        tipo: treatmentForm.tipo,
+        dosis: treatmentForm.dosis,
+        aplicadoPor: treatmentForm.aplicadoPor,
+        observaciones: treatmentForm.observaciones,
+      });
+      const res = await getTratamientosByAnimal(
+        parseInt(treatmentForm.animalId, 10)
+      );
+      setTreatments(res.data);
+      setMsgTrat("Tratamiento registrado");
+      setTreatmentForm({
+        animalId: "",
+        caravana: "",
+        tipo: "",
+        dosis: "",
+        aplicadoPor: "",
+        observaciones: "",
+      });
+    } catch {
+      setErrorTrat("Error al registrar tratamiento");
+    }
   };
 
   return (
@@ -373,7 +242,7 @@ export default function AnimalPage() {
               }
             />
             <input
-              placeholder="Numero Corral"
+              placeholder="ID Corral"
               value={newAnimal.corral}
               onChange={(e) =>
                 setNewAnimal({ ...newAnimal, corral: e.target.value })
@@ -548,7 +417,7 @@ export default function AnimalPage() {
           </form>
         )}
 
-        {/* TRATAMIENTO: “Tratar” */}
+        {/* TRATAR */}
         {activeTab === "tratar" && (
           <form className="form-tratamiento" onSubmit={handleRegisterTreatment}>
             <h2>Registrar Tratamiento</h2>
@@ -607,7 +476,7 @@ export default function AnimalPage() {
           </form>
         )}
 
-        {/* TRATAMIENTO: “Ver Tratamientos” */}
+        {/* VER TRATAMIENTOS */}
         {activeTab === "tratamientos" && (
           <div className="treatments-container">
             <h2>Planilla de Tratamientos</h2>
@@ -630,14 +499,14 @@ export default function AnimalPage() {
               </thead>
               <tbody>
                 {treatments.map((t) => (
-                  <tr key={t.id}>
+                  <tr key={t.registroTratamientoId || t.id}>
                     <td>
                       <input type="checkbox" />
                     </td>
                     <td>{t.fecha}</td>
                     <td>{t.animalId}</td>
                     <td>{t.caravana}</td>
-                    <td>{t.tipo}</td>
+                    <td>{t.tipo || t.medicamento}</td>
                     <td>{t.dosis}</td>
                     <td>{t.aplicadoPor}</td>
                     <td>{t.observaciones}</td>

@@ -12,6 +12,7 @@ public class RegistroTratamiento {
     @Column(name = "registro_tratamiento_id")
     private Integer registroTratamientoId;
     @Temporal(TemporalType.DATE)
+    @Column(nullable = false, updatable = false)
     private Date fecha;
     private float dosis;
 
@@ -88,5 +89,9 @@ public class RegistroTratamiento {
 
     public void setPlanillaTratamiento(PlanillaTratamiento planillaTratamiento) {
         this.planillaTratamiento = planillaTratamiento;
+    }
+    @PrePersist
+    protected void onCreate() {
+        this.fecha = new Date();
     }
 }

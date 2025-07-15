@@ -1,31 +1,69 @@
-import axios from 'axios';
+import axios from "axios";
 
-const API = import.meta.env.VITE_API_URL;
+const API_BASE = import.meta.env.VITE_API_URL;
 
-export function getAllAnimals() {
-    return axios.get(API);
-}
+export const getAllAnimals = () => {
+  return axios.get(API_BASE);
+};
 
-export function getAnimalById(id) {
-    return axios.get(`${API}/${id}`);
-}
+export const getAnimalById = (id) => {
+  return axios.get(`${API_BASE}/${id}`);
+};
 
-export function getAnimalByCaravana(caravana) {
-    return axios.get(`${API}/caravana/${caravana}`);
-}
+export const createAnimal = (animalData) => {
+  return axios.post(API_BASE, animalData);
+};
 
-export function searchByCaravana(fragmento) {
-    return axios.get(`${API}/buscar`, { params: { fragmento } });
-}
+export const updateAnimal = (id, animalData) => {
+  return axios.put(`${API_BASE}/${id}`, animalData);
+};
 
-export function createAnimal(animal) {
-    return axios.post(API, animal);
-}
+export const deleteAnimal = (id) => {
+  return axios.delete(`${API_BASE}/${id}`);
+};
 
-export function updateAnimal(id, animal) {
-    return axios.put(`${API}/${id}`, animal);
-}
+export const searchByCaravana = (fragmento) => {
+  return axios.get(`${API_BASE}/buscar`, {
+    params: { fragmento },
+  });
+};
 
-export function deleteAnimal(id) {
-    return axios.delete(`${API}/${id}`);
-}
+export const getAnimalByCaravana = (caravana) => {
+  return axios.get(
+    `${API_BASE}/caravana/${encodeURIComponent(caravana)}`
+  );
+};
+
+export const getByRaza = (raza) => {
+  return axios.get(API_BASE, { params: { raza } });
+};
+
+export const getBySexo = (sexo) => {
+  return axios.get(API_BASE, { params: { sexo } });
+};
+
+export const getByEstadoSalud = (estadoSalud) => {
+  return axios.get(API_BASE, { params: { estadoSalud } });
+};
+
+export const getByCorral = (corralId) => {
+  return axios.get(API_BASE, { params: { corralId } });
+};
+
+export const addTreatment = (animalId, tratamientoDto) => {
+  return axios.post(`${API_BASE}/${animalId}/tratamiento`, tratamientoDto);
+};
+
+export const trace = (caravana) => {
+  return axios.get(
+    `${API_BASE}/trace/${encodeURIComponent(caravana)}`
+  );
+};
+
+export const getPesajesByAnimal = (animalId) => {
+  return axios.get(`${API_BASE}/${animalId}/pesajes`);
+};
+
+export const getTratamientosByAnimal = (animalId) => {
+  return axios.get(`${API_BASE}/${animalId}/tratamientos`);
+};

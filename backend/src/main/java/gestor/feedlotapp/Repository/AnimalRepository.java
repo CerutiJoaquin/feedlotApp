@@ -12,8 +12,7 @@ import gestor.feedlotapp.entities.Animal;
 @Repository
 public interface AnimalRepository extends JpaRepository<Animal, Integer> {
 
-    // Buscar animal por ID
-    Optional<Animal> findById(Integer id);
+
 
     // Buscar animal por caravana exacta o parcial
     Optional<Animal> getByCaravana(String caravana);

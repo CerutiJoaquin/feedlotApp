@@ -3,6 +3,7 @@ package gestor.feedlotapp.controller;
 import java.net.URI;
 import java.util.List;
 
+import org.springframework.data.repository.query.parser.Part;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -131,28 +132,25 @@ public class AnimalController {
                 );
         }
 
-        @PostMapping("/api/animal/{id}/tratamiento")
+        @PostMapping("/{id}/tratamiento")
         public ResponseEntity<RegistroTratamiento> createTratamiento(
         @PathVariable int id,
         @Valid @RequestBody RegistroTratamiento tratamientoDto) {
+            RegistroTratamiento t = animalService.addTreatment(
+                id,
+                tratamientoDto.getMedicamento(),
+                tratamientoDto.getDosis()
+            );
+                URI location = ServletUriComponentsBuilder
+                        .fromCurrentRequest()
+                        .path("/{id}")
+                        .buildAndExpand(t.getRegistroTratamientoId())
+                        .toUri();
 
-    
-    RegistroTratamiento t = animalService.addTreatment(
-        id,
-        tratamientoDto.getMedicamento(),
-        tratamientoDto.getDosis()
-    );
+              return ResponseEntity.created(location).body(t);
+        }
 
-    URI location = ServletUriComponentsBuilder
-            .fromCurrentRequest()
-            .path("/{tid}")
-            .buildAndExpand(t.getRegistroTratamientoId())
-            .toUri();
-
-    return ResponseEntity.created(location).body(t);
-}
-
-      @GetMapping("/{caravana}")
+      @GetMapping("/trace/{caravana}")
 public ResponseEntity<Animal> trace(@PathVariable String caravana) {
   Animal a = animalService.getAnimalWithHistory(caravana);
   return ResponseEntity.ok(a);
