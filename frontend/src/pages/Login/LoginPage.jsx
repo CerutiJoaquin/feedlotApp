@@ -1,61 +1,76 @@
-// src/pages/Login/LoginPage.js
-import React from 'react'
-import { useForm } from 'react-hook-form'
-import { useNavigate } from 'react-router-dom'
-import TextInput from '../../components/common/TextInput'
-import Button    from '../../components/common/Button'
-import './LoginPage.css'
+import React from "react";
+import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import Button from "../../components/common/Button";
+import { login as LoginApi } from "../../services/authService";
+import "./LoginPage.css";
 
-export default function LoginPage({onLogin}) {
- const navigate = useNavigate()
+export default function LoginPage({ onLogin }) {
+  const navigate = useNavigate();
+
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting }
-  } = useForm()
+    setError,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    defaultValues: {
+      email: "",
+      contrasenia: "",
+    },
+  });
 
-  const onSubmit = async (values) => {
+  const onSubmit = async ({ email, contrasenia }) => {
     try {
-      // aquí harías tu llamada al back…
-      // const res = await api.login(values)
-      // const { token, usuario } = await res.json()
-      // localStorage.setItem('token', token)
+      const { data: user } = await LoginApi(email, contrasenia);
 
-      
-      onLogin(values.username)  
+      localStorage.setItem("user", JSON.stringify(user));
 
-      
-      navigate('/inicio', { replace: true })
+      onLogin?.(user);
+      navigate("/inicio", { replace: true });
     } catch (e) {
-      console.error(e)
+      console.error(e);
+      setError("root", {
+        type: "server",
+        message: "Email o contraseña incorrectos",
+      });
     }
-  }
+  };
   return (
     <div className="login-container">
       <h1 className="login-title">Feedlot Gestor</h1>
-      <form onSubmit={handleSubmit(onSubmit)} className="login-form">
+
+      <form onSubmit={handleSubmit(onSubmit)} className="login-form" noValidate autoComplete="on">
         <h2>Iniciar Sesión</h2>
 
-        <label htmlFor="username">Usuario</label>
+        <label htmlFor="email">Email</label>
         <input
-          id="username"
-          type="text"
-          placeholder="Ingresa tu usuario"
-          {...register('username', { required: true })}
+          id="email"
+          type="email"
+          placeholder="ejemplo@correo.com"
+          autoComplete="email"
+          {...register("email", {})}
         />
-        {errors.username && <span>El usuario es obligatorio</span>}
 
-        <label htmlFor="password">Contraseña</label>
+        {errors.email && <span className="error">{errors.email.message}</span>}
+
+        <label htmlFor="contrasenia">Contraseña</label>
         <input
-          id="password"
+          id="contrasenia"
           type="password"
           placeholder="Ingresa tu contraseña"
-          {...register('password', { required: true })}
+          autoComplete="current-password" 
+          {...register("contrasenia", {
+          })}
         />
-        {errors.password && <span>La contraseña es obligatoria</span>}
+        {errors.contrasenia && (
+          <span className="error">{error.contrasenia.message}</span>
+        )}
+
+        {errors.root && <div className="error">{errors.root.message}</div>}
 
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Ingresando…' : 'Ingresar'}
+          {isSubmitting ? "Ingresando…" : "Ingresar"}
         </Button>
 
         <div className="separator" />
@@ -64,5 +79,5 @@ export default function LoginPage({onLogin}) {
         </a>
       </form>
     </div>
-  )
+  );
 }

@@ -1,5 +1,6 @@
 package gestor.feedlotapp.entities;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
 @Entity
@@ -11,8 +12,11 @@ public class Usuario {
     private Integer usuarioId;
     private String nombre;
     private String apellido;
-    @Column(name = "email", unique = true)
+    @Column(nullable = false, unique = true)
     private String email;
+
+    @com.fasterxml.jackson.annotation.JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @Column(nullable = false)
     private String contrasenia;
 
     // Constructores

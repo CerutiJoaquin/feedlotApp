@@ -5,14 +5,8 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Positive;
 
 @Entity
@@ -22,12 +16,6 @@ public class Corral {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "corral_id")
     private Integer corralId;
-    private String nombre;
-    private String descripcion;
-    @Positive
-    @Column(name = "capacidad_min")
-    private int capacidadMin;
-
     @Positive
     @Column(name = "capacidad_max")
     private int capacidadMax;
@@ -45,29 +33,28 @@ public class Corral {
     @OneToMany(mappedBy = "corral")
     private List<RegistroComedero> registroComederos = new ArrayList<>();
 
+    @Transient
+    @JsonProperty("cabezas")
+    public int getCabezas(){
+        return (animales == null) ? 0 : animales.size();
+    }
 
     // Constructores
     public Corral(){}
 
-    public Corral(int corralId, String nombre, String descripcion, int capacidadMin, int capacidadMax,
+    public Corral(int corralId,  int capacidadMax,
                   String tipoSuperficie, String estado, List<Animal> animales) {
         this.corralId = corralId;
-        this.nombre = nombre;
-        this.descripcion = descripcion;
-        this.capacidadMin = capacidadMin;
         this.capacidadMax = capacidadMax;
         this.tipoSuperficie = tipoSuperficie;
         this.estado = estado;
         this.animales = animales;
     }
 
-    public Corral(int corralId, String nombre, String descripcion, int capacidadMin, int capacidadMax,
+    public Corral(int corralId, int capacidadMax,
                   String tipoSuperficie, String estado, List<Animal> animales,
                   List<RegistroRecorrido> registroRecorridos, List<RegistroComedero> registroComederos) {
         this.corralId = corralId;
-        this.nombre = nombre;
-        this.descripcion = descripcion;
-        this.capacidadMin = capacidadMin;
         this.capacidadMax = capacidadMax;
         this.tipoSuperficie = tipoSuperficie;
         this.estado = estado;
@@ -84,30 +71,6 @@ public class Corral {
 
     public void setCorralId(int corralId) {
         this.corralId = corralId;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public String getDescripcion() {
-        return descripcion;
-    }
-
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
-    }
-
-    public int getCapacidadMin() {
-        return capacidadMin;
-    }
-
-    public void setCapacidadMin(int capacidad_min) {
-        this.capacidadMin = capacidad_min;
     }
 
     public int getCapacidadMax() {
@@ -157,4 +120,5 @@ public class Corral {
     public void setRegistroComederos(List<RegistroComedero> registroComederos) {
         this.registroComederos = registroComederos;
     }
+
 }

@@ -23,7 +23,7 @@ public class CorralController {
 
     @GetMapping
     public ResponseEntity<List<Corral>> getAll() {
-        return ResponseEntity.ok(corralService.getAll());
+        return ResponseEntity.ok(corralService.findAllByOrderByCorralIdAsc());
     }
 
     @GetMapping("/{id}")

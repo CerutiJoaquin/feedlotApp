@@ -1,6 +1,15 @@
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap");
+
+/* altura de la topbar para usar en el menú fijo */
+:root { --topbar-h: 64px; }
+
 .topbar {
-  height: 8%;
+  position: sticky;
+  top: 0;
+  z-index: 9999;
+  isolation: isolate;
+  overflow: visible;
+  height: var(--topbar-h);
   background: #4caf50;
   display: flex;
   align-items: center;
@@ -15,49 +24,140 @@
   font-size: 1.95rem;
   font-weight: 800;
   padding-right: 3rem;
+  white-space: nowrap;
 }
 
 .topbar__search {
-  flex: none;
-  width: 50%;
-  max-width: 600px;
+  flex: 1 1 480px;
+  min-width: 180px;
+  max-width: 640px;
   padding: 0.5rem 1rem;
   border: none;
   border-radius: 0.5rem;
   outline: none;
+  background: #fff;
+  color: #111;
+  box-shadow: 0 2px 6px rgba(0,0,0,.15) inset;
+}
+.topbar__search::placeholder { color: #6b7280; }
+.topbar__search:focus {
+  box-shadow: 0 0 0 3px rgba(255,255,255,.4), 0 0 0 5px rgba(59,130,246,.6);
 }
 
 .topbar__actions {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 1rem;
   margin-left: auto;
+  white-space: nowrap;
 }
 
 .topbar__bell {
   font-size: 1.25rem;
   cursor: pointer;
+  transition: opacity .15s ease;
 }
+.topbar__bell:hover { opacity: .85; }
 
-.topbar__user {
-  justify-content: right;
-  font-weight: 700;
+.topbar__user { font-weight: 700; }
+
+.topbar__avatar-btn {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+}
+.topbar__avatar-btn:focus-visible {
+  outline: 3px solid rgba(255,255,255,.7);
+  outline-offset: 2px;
 }
 
 .topbar__avatar {
-  background: white;
+  background: #fff;
   color: #4caf50;
-  width: 32px;
-  height: 32px;
+  width: 32px; height: 32px;
   border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: flex; align-items: center; justify-content: center;
   font-weight: bold;
+  box-shadow: 0 1px 3px rgba(0,0,0,.2);
+  transition: transform .12s ease;
+}
+.topbar__avatar-btn:hover .topbar__avatar { transform: scale(1.03); }
+
+/* === MENÚ: estilos comunes (sin posicionamiento) === */
+.topbar__menu {
+  min-width: 220px;
+  background: #ffffff;
+  color: #111;
+  border-radius: 12px;
+  box-shadow: 0 12px 28px rgba(0,0,0,.18), 0 2px 6px rgba(0,0,0,.08);
+  padding: 8px;
+  z-index: 100000;                /* por encima del layout */
+  animation: topbarMenuIn .14s ease-out;
+  border: 1px solid rgba(0,0,0,.06);
 }
 
+/* variante fija para evitar stacking contexts del layout */
+.topbar__menu--fixed {
+  position: fixed;
+  top: calc(var(--topbar-h) + 8px); /* debajo de la topbar */
+  right: 16px;                      /* valor por defecto (JS lo puede sobrescribir) */
+}
+
+.topbar__menu--fixed::before {
+  content: "";
+  position: absolute;
+  top: -6px; right: 14px;
+  width: 10px; height: 10px;
+  background: #fff;
+  border-left: 1px solid rgba(0,0,0,.06);
+  border-top: 1px solid rgba(0,0,0,.06);
+  transform: rotate(45deg);
+}
+
+.topbar__menu-item {
+  width: 100%;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #111;
+}
+.topbar__menu-item:hover { background: #f3f4f6; }
+.topbar__menu-item--danger { color: #b91c1c; }
+.topbar__menu-item--danger:hover { background: #fee2e2; }
+
+.topbar__menu-sep {
+  height: 1px;
+  margin: 6px;
+  background: rgba(0,0,0,.08);
+}
+
+/* Siblings por debajo de la topbar/menú */
+.dashboard-body-container,
+.sidebar-nav,
+.dashboard-main {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes topbarMenuIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsivo */
 @media (max-width: 768px) {
-  .topbar__search {
-    width: 70%;
-  }
+  :root { --topbar-h: 56px; }
+  .topbar { height: var(--topbar-h); padding: 0 1rem; }
+  .topbar__logo { font-size: 1.5rem; padding-right: 1rem; }
+  .topbar__search { flex-basis: 320px; }
+  .topbar__user { display: none; }
 }

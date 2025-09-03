@@ -1,6 +1,12 @@
-// src/pages/Corral/CorralPage.js
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import TabBar from "../../components/layout/TabBar/TabBar";
+import {
+  getAllCorral,
+  getCorralById,
+  createCorral,
+  updateCorral,
+  deleteCorral,
+} from "../../services/corralService";
 import "./CorralPage.css";
 
 export default function CorralPage() {
@@ -11,41 +17,8 @@ export default function CorralPage() {
   ];
   const [activeTab, setActiveTab] = useState("listar");
 
-  // Datos de ejemplo
-  const initialCorrals = [
-    {
-      id: 1,
-      cabezas: 2,
-      capacidadMin: 5,
-      capacidadMax: 20,
-      tipoSuperficie: "Tierra",
-      estado: "Activo",
-      assignedAnimals: [321, 322],
-    },
-    {
-      id: 2,
-      cabezas: 0,
-      capacidadMin: 0,
-      capacidadMax: 10,
-      tipoSuperficie: "Concreto",
-      estado: "Inactivo",
-      assignedAnimals: [],
-    },
-    {
-      id: 3,
-      cabezas: 1,
-      capacidadMin: 2,
-      capacidadMax: 15,
-      tipoSuperficie: "Grava",
-      estado: "Activo",
-      assignedAnimals: [323],
-    },
-  ];
-  const [corrals, setCorrals] = useState(initialCorrals);
-
-  // — Crear corral —
+  const [corrals, setCorrals] = useState([]);
   const [newCorral, setNewCorral] = useState({
-    capacidadMin: "",
     capacidadMax: "",
     tipoSuperficie: "",
     estado: "Activo",
@@ -53,34 +26,92 @@ export default function CorralPage() {
   const [msgCreate, setMsgCreate] = useState("");
   const [errorCreate, setErrorCreate] = useState("");
 
-  const handleCreate = (e) => {
-    e.preventDefault();
-    setMsgCreate("");
-    setErrorCreate("");
-    const { capacidadMin, capacidadMax, tipoSuperficie, estado } = newCorral;
-    if (!capacidadMin || !capacidadMax || !tipoSuperficie) {
-      setErrorCreate("Completa todos los campos");
-      return;
-    }
-    const id = corrals.length ? corrals[corrals.length - 1].id + 1 : 1;
-    const corral = {
-      id,
-      cabezas: 0,
-      capacidadMax: parseInt(capacidadMax, 10),
-      tipoSuperficie,
-      estado,
-      assignedAnimals: [],
-    };
-    setCorrals([...corrals, corral]);
-    setMsgCreate("Corral creado con éxito");
-    setNewCorral({ capacidadMax: "", tipoSuperficie: "", estado: "Activo" });
-  };
+  const [editingCorral, setEditingCorral] = useState(null);
 
-  // — Detalle de corral —
   const [searchId, setSearchId] = useState("");
   const [selectedCorral, setSelectedCorral] = useState(null);
   const [errorSearch, setErrorSearch] = useState("");
 
+  useEffect(() => {
+    fetchCorrals();
+  }, []);
+
+  const fetchCorrals = async () => {
+    try {
+      const res = await getAllCorral();
+      const sorted = (res?.data ?? [])
+        .slice()
+        .sort((a, b) => a.corralId - b.corralId);
+      setCorrals(sorted);
+    } catch (e) {
+      console.error("Error cargando corrales", e);
+      setCorrals([]);
+    }
+  };
+
+  // Crear
+  const handleCreate = async (e) => {
+    e.preventDefault();
+    setMsgCreate("");
+    setErrorCreate("");
+
+    const { capacidadMax, tipoSuperficie, estado } = newCorral;
+    if (!capacidadMax || !tipoSuperficie || !estado) {
+      setErrorCreate("Completa todos los campos");
+      return;
+    }
+
+    try {
+      const body = {
+        capacidadMax: parseInt(capacidadMax, 10),
+        tipoSuperficie,
+        estado,
+      };
+      await createCorral(body);
+      setMsgCreate("Corral creado con éxito");
+      setNewCorral({ capacidadMax: "", tipoSuperficie: "", estado: "Activo" });
+      await fetchCorrals();
+      setActiveTab("listar");
+    } catch (error) {
+      console.error(error);
+      if (capacidadMax <= 0) {
+        setErrorCreate("La capacidad máxima debe ser mayor a 0");
+      } else {
+        setErrorCreate("Error al intentar crear el corral");
+      }
+    }
+  };
+
+  // Editar
+  const handleEditClick = (row) => setEditingCorral(row);
+
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+    try {
+      const body = {
+        ...editingCorral,
+        capacidadMax: parseInt(editingCorral.capacidadMax, 10),
+      };
+      await updateCorral(editingCorral.corralId, body);
+      setEditingCorral(null);
+      await fetchCorrals();
+    } catch (error) {
+      console.log("Error al actualizar corral", error);
+    }
+  };
+
+  // Eliminar
+  const handleDelete = async (id) => {
+    if (!window.confirm("¿Seguro que deseas eliminar este corral?")) return;
+    try {
+      await deleteCorral(id);
+      await fetchCorrals();
+    } catch (error) {
+      console.error("Error al eliminar el corral", error);
+    }
+  };
+
+  // Detalle
   const handleSearch = (e) => {
     e.preventDefault();
     setErrorSearch("");
@@ -89,7 +120,7 @@ export default function CorralPage() {
       setErrorSearch("Ingresa un ID válido");
       return;
     }
-    const found = corrals.find((c) => c.id === id);
+    const found = corrals.find((x) => x.corralId === id);
     if (!found) {
       setErrorSearch("Corral no encontrado");
       setSelectedCorral(null);
@@ -103,7 +134,7 @@ export default function CorralPage() {
       <TabBar tabs={tabs} activeKey={activeTab} onSelect={setActiveTab} />
 
       <div className="corral-content">
-        {/* === CREAR === */}
+        {/* CREAR */}
         {activeTab === "crear" && (
           <form className="form-crear" onSubmit={handleCreate}>
             <h2>Crear Nuevo Corral</h2>
@@ -137,7 +168,7 @@ export default function CorralPage() {
           </form>
         )}
 
-        {/* === LISTAR === */}
+        {/* LISTAR */}
         {activeTab === "listar" && (
           <div className="list-container">
             <h2>Listado de Corrales</h2>
@@ -149,24 +180,85 @@ export default function CorralPage() {
                   <th>Cap. Máx</th>
                   <th>Superficie</th>
                   <th>Estado</th>
+                  <th>Acciones</th>
                 </tr>
               </thead>
               <tbody>
-                {corrals.map((c) => (
-                  <tr key={c.id}>
-                    <td>{c.id}</td>
-                    <td>{c.cabezas}</td>
-                    <td>{c.capacidadMax}</td>
-                    <td>{c.tipoSuperficie}</td>
-                    <td>{c.estado}</td>
+                {(Array.isArray(corrals) ? corrals : []).map((row) => (
+                  <tr key={row.corralId}>
+                    <td>{row.corralId}</td>
+                    <td>{row.cabezas ?? row.animales?.length ?? 0}</td>
+                    <td>{row.capacidadMax}</td>
+                    <td>{row.tipoSuperficie}</td>
+                    <td>{row.estado}</td>
+                    <td>
+                      <div className="actions">
+                        <button
+                          type="button"
+                          className="btn btn--edit"
+                          onClick={() => handleEditClick(row)}
+                          title="Editar"
+                        >
+                          <span className="btn__icon">✏️</span>
+                          <span className="btn__label">Editar</span>
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn--danger"
+                          onClick={() => handleDelete(row.corralId)}
+                          title="Eliminar"
+                        >
+                          <span className="btn__icon">🗑️</span>
+                          <span className="btn__label">Eliminar</span>
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
+
+            {editingCorral && (
+              <form className="form-editar" onSubmit={handleUpdate}>
+                <h3>Editar Corral #{editingCorral?.corralId}</h3>
+                <input
+                  type="number"
+                  value={editingCorral.capacidadMax}
+                  onChange={(e) =>
+                    setEditingCorral({
+                      ...editingCorral,
+                      capacidadMax: e.target.value,
+                    })
+                  }
+                />
+                <input
+                  value={editingCorral.tipoSuperficie}
+                  onChange={(e) =>
+                    setEditingCorral({
+                      ...editingCorral,
+                      tipoSuperficie: e.target.value,
+                    })
+                  }
+                />
+                <select
+                  value={editingCorral.estado}
+                  onChange={(e) =>
+                    setEditingCorral({
+                      ...editingCorral,
+                      estado: e.target.value,
+                    })
+                  }
+                >
+                  <option value="Activo">Activo</option>
+                  <option value="Inactivo">Inactivo</option>
+                </select>
+                <button type="submit">Guardar Cambios</button>
+              </form>
+            )}
           </div>
         )}
 
-        {/* === DETALLE === */}
+        {/* DETALLE */}
         {activeTab === "detalle" && (
           <div className="detail-card">
             <h2>Detalle de Corral</h2>
@@ -186,15 +278,19 @@ export default function CorralPage() {
                     <tr>
                       <th>ID</th>
                       <th>Cabezas</th>
-                      <th>Cap.Max</th>
+                      <th>Cap. Máx</th>
                       <th>Superficie</th>
                       <th>Estado</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr>
-                      <td>{selectedCorral.id}</td>
-                      <td>{selectedCorral.cabezas}</td>
+                      <td>{selectedCorral.corralId}</td>
+                      <td>
+                        {selectedCorral.cabezas ??
+                          selectedCorral.animales?.length ??
+                          0}
+                      </td>
                       <td>{selectedCorral.capacidadMax}</td>
                       <td>{selectedCorral.tipoSuperficie}</td>
                       <td>{selectedCorral.estado}</td>
@@ -202,18 +298,20 @@ export default function CorralPage() {
                   </tbody>
                 </table>
 
-                <h4>Animales Asignados</h4>
-                {selectedCorral.assignedAnimals.length > 0 ? (
-                  <div className="scroll-list">
-                    {selectedCorral.assignedAnimals.map((aid) => (
-                      <div key={aid} className="scroll-item">
-                        Animal #{aid}
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p>No hay animales asignados</p>
-                )}
+                {Array.isArray(selectedCorral.animales) &&
+                selectedCorral.animales.length > 0 ? (
+                  <>
+                    <h4>Animales Asignados</h4>
+                    <div className="scroll-list">
+                      {selectedCorral.animales.map((a) => (
+                        <div key={a.animalId} className="scroll-item">
+                          Animal #{a.animalId}
+                          {a.caravana ? ` — ${a.caravana}` : ""}
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                ) : null}
               </>
             )}
           </div>

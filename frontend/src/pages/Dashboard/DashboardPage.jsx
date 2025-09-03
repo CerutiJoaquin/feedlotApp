@@ -3,6 +3,8 @@ import StatsCard   from "../../components/common/StatsCard";
 import Chart       from "../../components/common/Chart";
 import { FiUsers, FiBox }     from "react-icons/fi";
 import { GiCow, GiHealthNormal } from "react-icons/gi";
+import { getAllAnimals } from "../../services/animalService";
+import { getAllCorral } from "../../services/corralService";
 import "./DashboardPage.css";
 
 export default function DashboardPage() {

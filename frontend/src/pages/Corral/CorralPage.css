@@ -21,7 +21,6 @@
   text-align: center;
 }
 
-/* Formularios */
 .form-crear,
 .detail-form {
   display: flex;
@@ -54,7 +53,6 @@
   margin-top: 0.5rem;
 }
 
-/* Listar */
 .list-container {
   overflow-x: auto;
 }
@@ -69,9 +67,8 @@
   text-align: center;
 }
 
-/* Detalle */
 .detail-card {
-  max-width: 800px;
+  max-width: 900px;
   margin: 0 auto;
   background: rgba(255, 255, 255, 0.65);
   border-radius: 0.75rem;
@@ -105,9 +102,8 @@
   font-family: "Poppins", sans-serif;
 }
 
-/* Scrollable list for assigned animals */
 .scroll-list {
-  max-height: 150px;
+  max-height: 300px;
   overflow-y: auto;
   border: 1px solid rgba(0, 0, 0, 0.2);
   border-radius: 0.5rem;
@@ -125,4 +121,90 @@
 .scroll-item:last-child {
   margin-bottom: 0;
   border-bottom: none;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  line-height: 1;
+  border-radius: 999px;      
+  border: 1px solid transparent;
+  background: #f6f7f9;
+  color: #1f2937;
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 160ms ease, background 160ms ease, border-color 160ms ease;
+  box-shadow: 0 1px 2px rgba(0,0,0,.06);
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0,0,0,.10);
+}
+
+.btn:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0,0,0,.06);
+}
+
+.btn:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+
+.btn__icon {
+  display: inline-block;
+  font-size: 0.9rem;
+  line-height: 1;
+}
+.btn__label {
+  user-select: none;
+}
+
+.btn--edit {
+  background: #fff7e6;
+  border-color: #f7d08a;
+  color: #7a5a12;
+}
+.btn--edit:hover {
+  background: #ffefcc;
+  border-color: #efc35f;
+}
+
+.btn--danger {
+  background: #ffecec;
+  border-color: #f5b5b5;
+  color: #8a1f2b;
+}
+.btn--danger:hover {
+  background: #ffdede;
+  border-color: #ee9a9a;
+}
+
+@media (prefers-color-scheme: dark) {
+  .btn {
+    background: #2a2f3a;
+    color: #e5e7eb;
+    border-color: #3a4150;
+    box-shadow: 0 1px 2px rgba(0,0,0,.4);
+  }
+  .btn--edit { background: #3a321f; border-color: #7b5f2b; color: #f7e3b0; }
+  .btn--edit:hover { background: #4a3e28; }
+  .btn--danger { background: #3a2327; border-color: #8d3a44; color: #ffc7cf; }
+  .btn--danger:hover { background: #472a30; }
+}
+
+.list-table td:nth-child(6),
+.list-table th:nth-child(6) {
+  width: 210px;
 }
