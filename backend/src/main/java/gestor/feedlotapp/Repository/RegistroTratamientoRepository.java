@@ -1,22 +1,21 @@
-package gestor.feedlotapp.Repository;
+package gestor.feedlotapp.repository;
 
 import gestor.feedlotapp.entities.RegistroTratamiento;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 public interface RegistroTratamientoRepository extends JpaRepository<RegistroTratamiento, Integer> {
 
-    // Obtener todos los tratamientos de un animal
-    List<RegistroTratamiento> findByAnimal_AnimalId(Integer animalId);
+    List<RegistroTratamiento> findByAnimal_AnimalId(Long animalId);
 
-    // Buscar registro por caravana
-    List<RegistroTratamiento> findByAnimalCaravana(String caravana);
 
-    // Filtrar tratamientos por rango de fechas
-    List<RegistroTratamiento> findByFechaBetween(Date desde, Date hasta);
+    List<RegistroTratamiento> findByAnimal_Caravana(String caravana);
 
-    // Tratamientos de un animal en rango de fechas
-    List<RegistroTratamiento> findByAnimal_AnimalIdAndFechaBetweenOrderByFechaAsc(Integer animalId, Date desde, Date hasta);
+    List<RegistroTratamiento> findByFechaBetween(LocalDate desde, LocalDate hasta);
+
+    List<RegistroTratamiento> findByAnimal_AnimalIdAndFechaBetweenOrderByFechaAsc(
+            Long animalId, LocalDate desde, LocalDate hasta
+    );
 }

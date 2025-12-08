@@ -19,12 +19,14 @@
   max-width: 400px;
   margin: 0 auto 1rem;
 }
+
 .pred-form input {
   flex: 1;
   padding: 0.5rem;
   border: 1px solid #ccc;
   border-radius: 0.5rem;
 }
+
 .pred-form button {
   padding: 0 1rem;
   border: none;
@@ -36,6 +38,12 @@
 
 .error {
   color: red;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.info {
+  color: #444;
   text-align: center;
   margin-bottom: 1rem;
 }

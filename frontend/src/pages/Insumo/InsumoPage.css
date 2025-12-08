@@ -1,0 +1,202 @@
+.insumo-page {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 64px);
+}
+
+
+.insumo-content {
+  position: relative;
+  overflow-x: auto;
+  overflow-y: auto;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(2px);
+  border-end-start-radius: 2%;
+  border-end-end-radius: 2%;
+}
+
+.insumo-content h2 {
+  margin-bottom: 1rem;
+  font-family: "Poppins", sans-serif;
+  text-align: center;
+}
+
+.form-ingresar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  max-width: 400px;
+  margin: 0 auto;
+}
+.form-ingresar input,
+.form-ingresar select,
+.form-ingresar button {
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid #ccc;
+}
+.form-ingresar button {
+  background: #4caf50;
+  color: #fff;
+  cursor: pointer;
+}
+
+.form-editar {
+  padding: 1%;
+  border-radius: 3%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+.msg {
+  color: green;
+  margin-top: 0.5rem;
+}
+.error {
+  color: red;
+  margin-top: 0.5rem;
+}
+
+.list-container {
+  overflow-x: auto;
+}
+.list-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.list-table th,
+.list-table td {
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  padding: 0.5rem;
+  text-align: center;
+}
+
+.config-container {
+  overflow-x: auto;
+}
+.limits-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+.limits-table th,
+.limits-table td {
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  padding: 0.5rem;
+  text-align: center;
+}
+.limits-table input {
+  width: 80px;
+  padding: 0.25rem;
+  border-radius: 0.25rem;
+  border: 1px solid #ccc;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  line-height: 1;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: #f6f7f9;
+  color: #1f2937;
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 160ms ease, background 160ms ease,
+    border-color 160ms ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.btn:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.btn:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.btn__icon {
+  display: inline-block;
+  font-size: 0.9rem;
+  line-height: 1;
+}
+.btn__label {
+  user-select: none;
+}
+
+.btn--edit {
+  background: #fff7e6;
+  border-color: #f7d08a;
+  color: #7a5a12;
+}
+.btn--accept {
+  background: #3b954d;
+  border-color: #257d32;
+  color: #000000;
+}
+.btn--edit:hover {
+  background: #ffefcc;
+  border-color: #efc35f;
+}
+
+.btn--danger {
+  background: #ffecec;
+  border-color: #f5b5b5;
+  color: #8a1f2b;
+}
+.btn--danger:hover {
+  background: #ffdede;
+  border-color: #ee9a9a;
+}
+
+.h6{
+  margin-left: 5px;
+}
+
+.form-reponer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  background: rgba(255,255,255,.7);
+  box-shadow: 0 4px 14px rgba(0,0,0,.08);
+}
+.form-reponer input,
+.form-reponer select,
+.form-reponer button {
+  padding: 0.6rem;
+  border-radius: 0.5rem;
+  border: 1px solid #ccc;
+}
+.form-reponer .repo-stats,
+.form-reponer .repo-preview {
+  font-size: 0.95rem;
+  color: #374151;
+  background: #f9fafb;
+  padding: 0.5rem 0.6rem;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+}
+.form-reponer .repo-preview b { font-weight: 800; }

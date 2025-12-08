@@ -1,53 +1,40 @@
 package gestor.feedlotapp.controller;
 
-import gestor.feedlotapp.entities.Venta;
+
+import gestor.feedlotapp.dto.venta.VentaDtos.*;
+import gestor.feedlotapp.dto.venta.VentaListDto;
 import gestor.feedlotapp.service.VentaService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.validation.Valid;
-import java.net.URI;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/venta")
-@Validated
+@RequiredArgsConstructor
 public class VentaController {
 
-    private final VentaService ventaService;
+    private final VentaService service;
 
-    public VentaController(VentaService ventaService) {
-        this.ventaService = ventaService;
-    }
-
-    @GetMapping
-    public ResponseEntity<List<Venta>> getAll() {
-        return ResponseEntity.ok(ventaService.getAll());
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<Venta> getById(@PathVariable Integer id) {
-        return ResponseEntity.ok(ventaService.getById(id));
+    @PostMapping("/cotizar")
+    public ResponseEntity<CotizarResponse> cotizar(@RequestBody CotizarRequest req) {
+        return ResponseEntity.ok(service.cotizar(req));
     }
 
     @PostMapping
-    public ResponseEntity<Venta> create(@Valid @RequestBody Venta venta) {
-        Venta creado = ventaService.create(venta);
-        URI location = URI.create("/api/venta/" + creado.getVentaId());
-        return ResponseEntity.created(location).body(creado);
+    public ResponseEntity<VentaResponse> crear(@RequestBody CrearVentaRequest req) {
+        return ResponseEntity.ok(service.crearVenta(req));
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Venta> update(
-            @PathVariable Integer id,
-            @Valid @RequestBody Venta venta) {
-        return ResponseEntity.ok(ventaService.update(id, venta));
+    @GetMapping("/{ventaId}")
+    public ResponseEntity<VentaResponse> getById(@PathVariable Long ventaId) {
+        return ResponseEntity.ok(service.getVenta(ventaId));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Integer id) {
-        ventaService.delete(id);
-        return ResponseEntity.noContent().build();
+    @GetMapping("/historial")
+    public List<VentaListDto> historial(@RequestParam(required = false) Long clienteId) {
+        return service.historial(clienteId);
     }
 }
+

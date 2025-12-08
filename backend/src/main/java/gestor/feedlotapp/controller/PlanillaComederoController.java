@@ -1,6 +1,6 @@
 package gestor.feedlotapp.controller;
 
-import gestor.feedlotapp.entities.PlanillaComedero;
+import gestor.feedlotapp.dto.planillacomedero.*;
 import gestor.feedlotapp.service.PlanillaComederoService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -15,40 +15,40 @@ import java.util.List;
 @Validated
 public class PlanillaComederoController {
 
-    private final PlanillaComederoService planillaComederoService;
+    private final PlanillaComederoService service;
 
-    public PlanillaComederoController(PlanillaComederoService planillaComederoService) {
-        this.planillaComederoService = planillaComederoService;
+    public PlanillaComederoController(PlanillaComederoService service) {
+        this.service = service;
     }
 
     @GetMapping
-    public ResponseEntity<List<PlanillaComedero>> getAll() {
-        return ResponseEntity.ok(planillaComederoService.getAll());
+    public ResponseEntity<List<PlanillaComederoResponseDto>> getAll() {
+        return ResponseEntity.ok(service.getAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PlanillaComedero> getById(@PathVariable Integer id) {
-        return ResponseEntity.ok(planillaComederoService.getById(id));
+    public ResponseEntity<PlanillaComederoResponseDto> getById(@PathVariable Integer id) {
+        return ResponseEntity.ok(service.getById(id));
     }
 
     @PostMapping
-    public ResponseEntity<PlanillaComedero> create(@Valid @RequestBody PlanillaComedero planillaComedero) {
-        PlanillaComedero creado = planillaComederoService.create(planillaComedero);
-        URI location = URI.create("/api/planillacomedero/" + creado.getPlanillaComederoId());
+    public ResponseEntity<PlanillaComederoResponseDto> create(@Valid @RequestBody PlanillaComederoCreateDto dto) {
+        var creado = service.create(dto);
+        URI location = URI.create("/api/planillacomedero/" + creado.planillaComederoId());
         return ResponseEntity.created(location).body(creado);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<PlanillaComedero> update(
+    @PatchMapping("/{id}")
+    public ResponseEntity<PlanillaComederoResponseDto> update(
             @PathVariable Integer id,
-            @Valid @RequestBody PlanillaComedero planillaComedero
+            @Valid @RequestBody PlanillaComederoUpdateDto dto
     ) {
-        return ResponseEntity.ok(planillaComederoService.update(id, planillaComedero));
+        return ResponseEntity.ok(service.update(id, dto));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Integer id) {
-        planillaComederoService.delete(id);
+        service.delete(id);
         return ResponseEntity.noContent().build();
     }
 }

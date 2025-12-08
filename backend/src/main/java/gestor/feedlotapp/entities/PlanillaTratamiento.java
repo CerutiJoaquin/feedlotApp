@@ -1,9 +1,6 @@
 package gestor.feedlotapp.entities;
 
-
-
 import jakarta.persistence.*;
-
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,15 +12,17 @@ public class PlanillaTratamiento {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "planilla_tratamiento_id")
     private Integer planillaTratamientoId;
-    @Temporal(TemporalType.DATE)
+
+    @Column(nullable = false)
     private Date fecha;
-    private String observaciones;
+
+    @Column(nullable = false)
     private String responsable;
+
+    private String observaciones;
 
     @OneToMany(mappedBy = "planillaTratamiento", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RegistroTratamiento> registrosTratamientos = new ArrayList<>();
-
-    // Constructores
 
     public PlanillaTratamiento() {}
 
@@ -34,45 +33,19 @@ public class PlanillaTratamiento {
         this.responsable = responsable;
         this.registrosTratamientos = registrosTratamientos;
     }
-    // Setters y Getters
 
-    public Integer getPlanillaTratamientoId() {
-        return planillaTratamientoId;
-    }
+    public Integer getPlanillaTratamientoId() { return planillaTratamientoId; }
+    public void setPlanillaTratamientoId(Integer planillaTratamientoId) { this.planillaTratamientoId = planillaTratamientoId; }
 
-    public void setPlanillaTratamientoId(Integer planillaTratamientoId) {
-        this.planillaTratamientoId = planillaTratamientoId;
-    }
+    public Date getFecha() { return fecha; }
+    public void setFecha(Date fecha) { this.fecha = fecha; }
 
-    public Date getFecha() {
-        return fecha;
-    }
+    public String getResponsable() { return responsable; }
+    public void setResponsable(String responsable) { this.responsable = responsable; }
 
-    public void setFecha(Date fecha) {
-        this.fecha = fecha;
-    }
+    public String getObservaciones() { return observaciones; }
+    public void setObservaciones(String observaciones) { this.observaciones = observaciones; }
 
-    public String getObservaciones() {
-        return observaciones;
-    }
-
-    public void setObservaciones(String observaciones) {
-        this.observaciones = observaciones;
-    }
-
-    public String getResponsable() {
-        return responsable;
-    }
-
-    public void setResponsable(String responsable) {
-        this.responsable = responsable;
-    }
-
-    public List<RegistroTratamiento> getRegistrosTratamientos() {
-        return registrosTratamientos;
-    }
-
-    public void setRegistrosTratamientos(List<RegistroTratamiento> registrosTratamientos) {
-        this.registrosTratamientos = registrosTratamientos;
-    }
+    public List<RegistroTratamiento> getRegistrosTratamientos() { return registrosTratamientos; }
+    public void setRegistrosTratamientos(List<RegistroTratamiento> registrosTratamientos) { this.registrosTratamientos = registrosTratamientos; }
 }

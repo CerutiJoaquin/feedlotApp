@@ -1,68 +1,89 @@
 import React, { useState } from "react";
 import TabBar from "../../components/layout/TabBar/TabBar";
 import Chart from "../../components/common/Chart";
+import {
+  getPesoPrediccion,
+  getConsumoPrediccion,
+} from "../../services/prediccionService";
 import "./PredictionPage.css";
 
 export default function PredictionPage() {
   const tabs = [
     { key: "predictPesoAnimal", label: "Peso de Animal" },
-    { key: "predictRendimiento", label: "Rendimiento Animal" },
     { key: "predictAlimento", label: "Consumo de Alimento" },
   ];
   const [activeTab, setActiveTab] = useState(tabs[0].key);
 
-  // Estado común de búsqueda
   const [query, setQuery] = useState("");
   const [errorQ, setErrorQ] = useState("");
   const [loading, setLoading] = useState(false);
+  const [infoMsg, setInfoMsg] = useState("");
 
-  // Mock de resultados
-  const mockPeso = [
-    { mes: "Jul", peso: 330 },
-    { mes: "Ago", peso: 345 },
-    { mes: "Sep", peso: 360 },
-    { mes: "Oct", peso: 376 },
-    { mes: "Nov", peso: 390 },
-    { mes: "Dic", peso: 410 },
-  ];
-  const mockRend = [
-    { mes: "Jul", valor: 1200 },
-    { mes: "Ago", valor: 1300 },
-    { mes: "Sep", valor: 1400 },
-    { mes: "Oct", valor: 1500 },
-    { mes: "Nov", valor: 1600 },
-    { mes: "Dic", valor: 1700 },
-  ];
-  const consumoData = [
-    { mes: "Jul", consumo: 3700 },
-    { mes: "Ago", consumo: 3780 },
-    { mes: "Sep", consumo: 3900 },
-    { mes: "Oct", consumo: 3850 },
-    { mes: "Nov", consumo: 3820 },
-    { mes: "Dic", consumo: 3950 },
-  ];
-
-  // Estados de datos tras buscar
   const [pesoData, setPesoData] = useState([]);
-  const [rendData, setRendData] = useState([]);
+  const [consumoData, setConsumoData] = useState([]);
 
-  const handleSearch = (e) => {
+  const formatMonthFromIso = (isoDate) => {
+    const d = new Date(isoDate);
+    if (Number.isNaN(d.getTime())) return isoDate;
+    return d.toLocaleDateString("es-AR", { month: "short" });
+  };
+
+  const handleSearch = async (e) => {
     e.preventDefault();
     setErrorQ("");
+    setInfoMsg("");
+    setPesoData([]);
+    setConsumoData([]);
+
     if (!query.trim()) {
-      setErrorQ("Ingresa un ID o N° Caravana");
+      setErrorQ(
+        activeTab === "predictAlimento"
+          ? "Ingresa un ID de corral"
+          : "Ingresa un ID de animal"
+      );
       return;
     }
-    setLoading(true);
-    // Simular fetch
-    setTimeout(() => {
+
+    try {
+      setLoading(true);
+
       if (activeTab === "predictPesoAnimal") {
-        setPesoData(mockPeso);
+        const res = await getPesoPrediccion(query.trim());
+        const data = res.data.map((p) => ({
+          mes: formatMonthFromIso(p.fecha),
+          peso: Number(p.pesoKg),
+          predicho: p.predicho,
+        }));
+        setPesoData(data);
+        if (data.length === 0)
+          setInfoMsg("No se encontraron pesajes para este animal.");
+      } else if (activeTab === "predictAlimento") {
+        const res = await getConsumoPrediccion(query.trim());
+        const data = res.data.map((p) => ({
+          mes: formatMonthFromIso(p.fecha),
+          consumo: Number(p.consumoTotalKg),
+          predicho: p.predicho,
+        }));
+        setConsumoData(data);
+        if (data.length === 0)
+          setInfoMsg(
+            "No se encontraron registros de comedero para este corral."
+          );
       } else if (activeTab === "predictRendimiento") {
-        setRendData(mockRend);
+        setInfoMsg(
+          "La predicción de rendimiento animal aún está en desarrollo."
+        );
       }
+    } catch (err) {
+      console.error(err);
+      if (err.response && err.response.status === 404) {
+        setErrorQ("Animal no encontrado o no se encuentra ACTIVO.");
+      } else {
+        setErrorQ("Ocurrió un error al obtener la predicción.");
+      }
+    } finally {
       setLoading(false);
-    }, 500);
+    }
   };
 
   return (
@@ -74,18 +95,23 @@ export default function PredictionPage() {
           setActiveTab(key);
           setQuery("");
           setErrorQ("");
+          setInfoMsg("");
           setPesoData([]);
-          setRendData([]);
+          setConsumoData([]);
         }}
       />
 
       <div className="prediction-content">
         {(activeTab === "predictPesoAnimal" ||
-          activeTab === "predictRendimiento") && (
+          activeTab === "predictAlimento") && (
           <form className="pred-form" onSubmit={handleSearch}>
             <input
-              type="text"
-              placeholder="ID o N° Caravana"
+              type={activeTab === "predictPesoAnimal" ? "text" : "number"}
+              placeholder={
+                activeTab === "predictPesoAnimal"
+                  ? "ID o N° Caravana"
+                  : "ID de Corral"
+              }
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />
@@ -96,6 +122,7 @@ export default function PredictionPage() {
         )}
 
         {errorQ && <p className="error">{errorQ}</p>}
+        {infoMsg && <p className="info">{infoMsg}</p>}
 
         {activeTab === "predictPesoAnimal" && pesoData.length > 0 && (
           <div className="prediction-card">
@@ -109,26 +136,23 @@ export default function PredictionPage() {
           </div>
         )}
 
-        {activeTab === "predictRendimiento" && rendData.length > 0 && (
+        {activeTab === "predictRendimiento" && (
           <div className="prediction-card">
-            <h2>Predicción de Rendimiento ($) para animal {query}</h2>
-            <Chart
-              tipo="bar"
-              data={rendData}
-              dataKey="valor"
-              label="Valor ($)"
-            />
+            <h2>Predicción de Rendimiento Animal</h2>
+            <p>Esta funcionalidad se añadirá más adelante.</p>
           </div>
         )}
 
-        {activeTab === "predictAlimento" && (
+        {activeTab === "predictAlimento" && consumoData.length > 0 && (
           <div className="prediction-card">
-            <h2>Predicción de Consumo de Alimento (kg)</h2>
+            <h2>
+              Predicción de Consumo de Alimento (kg) para corral ID: {query}
+            </h2>
             <Chart
               tipo="line"
               data={consumoData}
               dataKey="consumo"
-              label="Consumo (kg)"
+              label="Consumo total (kg)"
             />
           </div>
         )}

@@ -1,6 +1,6 @@
 package gestor.feedlotapp.service;
 
-import gestor.feedlotapp.Repository.UsuarioRepository;
+import gestor.feedlotapp.repository.UsuarioRepository;
 import gestor.feedlotapp.entities.Usuario;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -23,7 +23,7 @@ public class AuthService {
         u.setNombre(nombre);
         u.setApellido(apellido);
         u.setEmail(email);
-        u.setContrasenia(encoder.encode(rawPass)); //HASH
+        u.setContrasenia(encoder.encode(rawPass));
         return repo.save(u);
     }
 
@@ -32,6 +32,18 @@ public class AuthService {
                 .filter(u -> encoder.matches(rawPass, u.getContrasenia()));
     }
 
+    //  Crear seed contraseña
+//    @Bean
+//    CommandLineRunner seedAdmin(AuthService auth, UsuarioRepository repo){
+//        return args -> {
+//            String adminEmail = "admin@feedlot.com";
+//            if (!repo.existsByEmail(adminEmail)) {
+//                auth.register("Admin","", adminEmail, "Admin123456!");
+//            }
+//        };
+//    }
+
+    //    Modificar seed contraseña
     @Bean
     CommandLineRunner updateAdminPass(UsuarioRepository repo) {
         return args -> {
@@ -41,4 +53,5 @@ public class AuthService {
             });
         };
     }
+
 }

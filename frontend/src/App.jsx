@@ -6,7 +6,7 @@ import MainMenuPage from "./pages/MainMenu/MainMenuPage";
 import DashboardPage from "./pages/Dashboard/DashboardPage";
 import AnimalPage from "./pages/Animal/AnimalPage";
 import CorralPage from "./pages/Corral/CorralPage";
-import StockPage from "./pages/Stock/StockPage";
+import InsumoPage from "./pages/Insumo/InsumoPage";
 import VentaPage from "./pages/Venta/VentaPage";
 import PredictionPage from "./pages/Prediction/PredictionPage";
 import ReportPage from "./pages/Report/ReportPage";
@@ -43,7 +43,7 @@ export default function App() {
           <Route path="dashboard"  element={<DashboardPage />} />
           <Route path="ganado"     element={<AnimalPage />} />
           <Route path="corral"     element={<CorralPage />} />
-          <Route path="insumo"     element={<StockPage />} />
+          <Route path="insumo"     element={<InsumoPage />} />
           <Route path="ventas"     element={<VentaPage />} />
           <Route path="prediction" element={<PredictionPage />} />
           <Route path="reportes"   element={<ReportPage />} />

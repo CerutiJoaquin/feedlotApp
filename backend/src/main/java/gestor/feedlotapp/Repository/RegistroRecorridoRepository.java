@@ -1,4 +1,4 @@
-package gestor.feedlotapp.Repository;
+package gestor.feedlotapp.repository;
 
 import gestor.feedlotapp.entities.RegistroRecorrido;
 import org.springframework.data.jpa.repository.JpaRepository;

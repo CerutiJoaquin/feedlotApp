@@ -1,12 +1,9 @@
-/* src/pages/MainMenu/MainMenuPage.css */
 
-/* 1) Aseguramos que html, body y root llenen la pantalla */
 html, body, #root {
   height: 100%;
   margin: 0;
 }
 
-/* 2) El contenedor principal de TODO el layout */
 .app-layout {
   position: relative;
   display: flex;
@@ -15,7 +12,6 @@ html, body, #root {
   overflow: hidden;
 }
 
-/* 3) El fondo borroso detrás de TODO */
 .app-layout::before {
   content: "";
   position: absolute;
@@ -25,7 +21,6 @@ html, body, #root {
   z-index: -1;
 }
 
-/* 4) Elevamos el contenedor interior */
 .dashboard-body-container,
 .dashboard-main {
   position: relative;
@@ -33,7 +28,6 @@ html, body, #root {
   overflow: hidden;      
 }
 
-/* 5) Hacemos la zona de contenido semitransparente para que se vea el blur */
 .dashboard-main {
   flex: 1;  
   padding: 1.5rem;

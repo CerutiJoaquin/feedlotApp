@@ -1,6 +1,7 @@
 package gestor.feedlotapp.controller;
 
-import gestor.feedlotapp.entities.RegistroTratamiento;
+import gestor.feedlotapp.dto.insumo.AplicarTratamientoReq;
+import gestor.feedlotapp.dto.registrotratamiento.*;
 import gestor.feedlotapp.service.RegistroTratamientoService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -8,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 import java.net.URI;
-import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -23,28 +24,29 @@ public class RegistroTratamientoController {
     }
 
     @GetMapping
-    public ResponseEntity<List<RegistroTratamiento>> getAll() {
+    public ResponseEntity<List<RegistroTratamientoResponseDto>> getAll() {
         return ResponseEntity.ok(registroTratamientoService.getAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<RegistroTratamiento> getById(@PathVariable Integer id) {
+    public ResponseEntity<RegistroTratamientoResponseDto> getById(@PathVariable Integer id) {
         return ResponseEntity.ok(registroTratamientoService.getById(id));
     }
 
     @PostMapping
-    public ResponseEntity<RegistroTratamiento> create(
-            @Valid @RequestBody RegistroTratamiento registroTratamiento) {
-        RegistroTratamiento creado = registroTratamientoService.create(registroTratamiento);
-        URI location = URI.create("/api/registrotratamiento/" + creado.getRegistroTratamientoId());
+    public ResponseEntity<RegistroTratamientoResponseDto> create(
+            @Valid @RequestBody RegistroTratamientoCreateDto dto) {
+        var creado = registroTratamientoService.create(dto);
+        URI location = URI.create("/api/registrotratamiento/" + creado.registroTratamientoId());
         return ResponseEntity.created(location).body(creado);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<RegistroTratamiento> update(
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<RegistroTratamientoResponseDto> update(
             @PathVariable Integer id,
-            @Valid @RequestBody RegistroTratamiento registroTratamiento) {
-        return ResponseEntity.ok(registroTratamientoService.update(id, registroTratamiento));
+            @Valid @RequestBody RegistroTratamientoUpdateDto dto) {
+        return ResponseEntity.ok(registroTratamientoService.update(id, dto));
     }
 
     @DeleteMapping("/{id}")
@@ -54,37 +56,29 @@ public class RegistroTratamientoController {
     }
 
     @GetMapping("/animal/{animalId}")
-    public ResponseEntity<List<RegistroTratamiento>> getByAnimalId(
-            @PathVariable Integer animalId) {
-        return ResponseEntity.ok(
-                registroTratamientoService.findByAnimalId(animalId)
-        );
+    public ResponseEntity<List<RegistroTratamientoResponseDto>> getByAnimalId(
+            @PathVariable Long animalId) {
+        return ResponseEntity.ok(registroTratamientoService.findByAnimalId(animalId));
     }
 
     @GetMapping("/caravana/{caravana}")
-    public ResponseEntity<List<RegistroTratamiento>> getByCaravana(
+    public ResponseEntity<List<RegistroTratamientoResponseDto>> getByCaravana(
             @PathVariable String caravana) {
-        return ResponseEntity.ok(
-                registroTratamientoService.findByAnimalCaravana(caravana)
-        );
+        return ResponseEntity.ok(registroTratamientoService.findByAnimalCaravana(caravana));
     }
 
     @GetMapping("/fecha")
-    public ResponseEntity<List<RegistroTratamiento>> getByFechaBetween(
-            @RequestParam Date desde,
-            @RequestParam Date hasta) {
-        return ResponseEntity.ok(
-                registroTratamientoService.findByFechaBetween(desde, hasta)
-        );
+    public ResponseEntity<List<RegistroTratamientoResponseDto>> getByFechaBetween(
+            @RequestParam LocalDate desde,
+            @RequestParam LocalDate hasta) {
+        return ResponseEntity.ok(registroTratamientoService.findByFechaBetween(desde, hasta));
     }
 
     @GetMapping("/animal/{animalId}/fecha")
-    public ResponseEntity<List<RegistroTratamiento>> getByAnimalIdAndFechaBetween(
-            @PathVariable Integer animalId,
-            @RequestParam Date desde,
-            @RequestParam Date hasta) {
-        return ResponseEntity.ok(
-                registroTratamientoService.findByAnimalIdAndFechaBetween(animalId, desde, hasta)
-        );
+    public ResponseEntity<List<RegistroTratamientoResponseDto>> getByAnimalIdAndFechaBetween(
+            @PathVariable Long animalId,
+            @RequestParam LocalDate desde,
+            @RequestParam LocalDate hasta) {
+        return ResponseEntity.ok(registroTratamientoService.findByAnimalIdAndFechaBetween(animalId, desde, hasta));
     }
 }

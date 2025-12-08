@@ -2,7 +2,9 @@ package gestor.feedlotapp.entities;
 
 import jakarta.persistence.*;
 
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.ZoneId;
+
 
 @Entity
 @Table(name = "registro_tratamiento")
@@ -11,14 +13,17 @@ public class RegistroTratamiento {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "registro_tratamiento_id")
     private Integer registroTratamientoId;
-    @Temporal(TemporalType.DATE)
-    @Column(nullable = false, updatable = false)
-    private Date fecha;
+
+    @Column(nullable = false)
+    private LocalDate fecha;
+
     private float dosis;
+    private String responsable;
+    private String descripcion;
 
     @ManyToOne
     @JoinColumn(name = "insumo_id")
-    private Insumo medicamento;
+    private Insumo insumo;
 
     @ManyToOne
     @JoinColumn(name = "animal_id")
@@ -28,70 +33,58 @@ public class RegistroTratamiento {
     @JoinColumn(name = "planilla_tratamiento_id")
     private PlanillaTratamiento planillaTratamiento;
 
-    // Constructores
     public RegistroTratamiento(){}
 
-    public RegistroTratamiento(int registroTratamientoId, Date fecha, float dosis, Insumo medicamento,
-                               Animal animal, PlanillaTratamiento planillaTratamiento) {
+    public RegistroTratamiento(int registroTratamientoId, LocalDate fecha, float dosis, Insumo insumo, String responsable,
+                               String descripcion, Animal animal, PlanillaTratamiento planillaTratamiento) {
         this.registroTratamientoId = registroTratamientoId;
         this.fecha = fecha;
         this.dosis = dosis;
-        this.medicamento = medicamento;
+        this.insumo = insumo;
+        this.responsable = responsable;
+        this.descripcion = descripcion;
         this.animal = animal;
         this.planillaTratamiento = planillaTratamiento;
     }
 
-    // Setters y Getters
+    public Integer getRegistroTratamientoId() { return registroTratamientoId; }
+    public void setRegistroTratamientoId(Integer registroTratamientoId) { this.registroTratamientoId = registroTratamientoId; }
 
-    public Integer getRegistroTratamientoId() {
-        return registroTratamientoId;
+    public LocalDate getFecha() { return fecha; }
+    public void setFecha(LocalDate fecha) { this.fecha = fecha; }
+
+    public float getDosis() { return dosis; }
+    public void setDosis(float dosis) { this.dosis = dosis; }
+
+    public Insumo getInsumo() { return insumo; }
+    public void setInsumo(Insumo medicamento) { this.insumo = medicamento; }
+
+    public Animal getAnimal() { return animal; }
+    public void setAnimal(Animal animal) { this.animal = animal; }
+
+    public PlanillaTratamiento getPlanillaTratamiento() { return planillaTratamiento; }
+    public void setPlanillaTratamiento(PlanillaTratamiento planillaTratamiento) { this.planillaTratamiento = planillaTratamiento; }
+
+    public String getResponsable() {
+        return responsable;
     }
 
-    public void setRegistroTratamientoId(Integer registroTratamientoId) {
-        this.registroTratamientoId = registroTratamientoId;
+    public void setResponsable(String responsable) {
+        this.responsable = responsable;
     }
 
-    public Date getFecha() {
-        return fecha;
+    public String getDescripcion() {
+        return descripcion;
     }
 
-    public void setFecha(Date fecha) {
-        this.fecha = fecha;
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
     }
 
-    public float getDosis() {
-        return dosis;
-    }
-
-    public void setDosis(float dosis) {
-        this.dosis = dosis;
-    }
-
-    public Insumo getMedicamento() {
-        return medicamento;
-    }
-
-    public void setMedicamento(Insumo medicamento) {
-        this.medicamento = medicamento;
-    }
-
-    public Animal getAnimal() {
-        return animal;
-    }
-
-    public void setAnimal(Animal animal_id) {
-        this.animal = animal_id;
-    }
-
-    public PlanillaTratamiento getPlanillaTratamiento() {
-        return planillaTratamiento;
-    }
-
-    public void setPlanillaTratamiento(PlanillaTratamiento planillaTratamiento) {
-        this.planillaTratamiento = planillaTratamiento;
-    }
     @PrePersist
-    protected void onCreate() {
-        this.fecha = new Date();
+    public void prePersist(){
+        if(fecha == null){
+            fecha = LocalDate.now(ZoneId.of("America/Argentina/Cordoba"));
+        }
     }
 }

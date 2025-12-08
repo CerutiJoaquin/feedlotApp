@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:8080/api/animal";
+const API_URL = "/api/animal";
 
 export const getAllAnimals = () => {
   return axios.get(API_URL);
@@ -17,6 +17,10 @@ export const createAnimal = (animalData) => {
 export const updateAnimal = (id, animalData) => {
   return axios.put(`${API_URL}/${id}`, animalData);
 };
+
+export const updateFechaTrat = (id, animalData) => {
+  return axios.patch(`${API_URL}/${id}`, animalData);
+}
 
 export const deleteAnimal = (id) => {
   return axios.delete(`${API_URL}/${id}`);

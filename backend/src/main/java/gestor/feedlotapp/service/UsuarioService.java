@@ -1,7 +1,7 @@
 package gestor.feedlotapp.service;
 
 import gestor.feedlotapp.entities.Usuario;
-import gestor.feedlotapp.Repository.UsuarioRepository;
+import gestor.feedlotapp.repository.UsuarioRepository;
 import gestor.feedlotapp.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

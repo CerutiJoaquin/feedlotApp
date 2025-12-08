@@ -1,4 +1,3 @@
-
 .venta-page {
   display: flex;
   flex-direction: column;
@@ -15,7 +14,6 @@
   border-end-end-radius: 2%;
 }
 
-/* Formularios de venta y cliente */
 .form-venta,
 .form-cliente {
   display: flex;
@@ -25,7 +23,6 @@
   margin: 0 auto;
 }
 
-/* Líneas de animales en el formulario de venta */
 .animal-line {
   display: flex;
   gap: 0.5rem;
@@ -39,7 +36,6 @@
   border-radius: 0.5rem;
 }
 
-/* Botones para añadir/quitar animales */
 .btn-add,
 .btn-remove {
   background: #4caf50;
@@ -54,19 +50,18 @@
   background: #e53935;
 }
 
-/* Campos de formulario generales */
 .form-venta select,
 .form-venta input[type="number"],
 .form-venta input[type="date"],
 .form-venta button,
 .form-cliente input,
-.form-cliente button {
+.form-cliente button,
+.input {
   padding: 0.5rem;
   border-radius: 0.5rem;
   border: 1px solid #ccc;
 }
 
-/* Botones principales de formularios */
 .form-venta button,
 .form-cliente button {
   background: #4caf50;
@@ -74,7 +69,6 @@
   cursor: pointer;
 }
 
-/* Mensajes de éxito y error */
 .msg {
   color: green;
   margin-top: 0.5rem;
@@ -85,7 +79,6 @@
   margin-top: 0.5rem;
 }
 
-/* Contenedor de tablas */
 .table-container {
   overflow-x: auto;
   margin-top: 1rem;
@@ -103,14 +96,12 @@
   text-align: center;
 }
 
-/* Inputs dentro de las tablas (inline edit) */
 .list-table input {
   width: 100%;
   padding: 0.25rem;
   box-sizing: border-box;
 }
 
-/* Botones de edición en listado */
 .btn-edit,
 .btn-save,
 .btn-cancel {
@@ -134,4 +125,206 @@
 .btn-cancel {
   background: #e53935;
   color: #fff;
+}
+
+.row-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.btn-secondary {
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  padding: 0.3rem 0.6rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+
+.filters {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 8px 0 14px;
+}
+
+.combo {
+  position: relative;
+  max-width: 360px;
+  flex: 1;
+}
+
+.combo-input {
+  width: 100%;
+  padding: 10px 36px 10px 36px;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 12px;
+  backdrop-filter: blur(6px);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.20);
+  color: #fff;
+}
+
+.combo-input::placeholder { 
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: 0 1px 2px rgba(0,0,0,.25);
+}
+
+.combo-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  opacity: .8;
+}
+
+.combo-clear {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font-size: 14px;
+  opacity: .8;
+}
+
+.combo-menu {
+  position: absolute;
+  z-index: 20;
+  width: 100%;
+  margin-top: 6px;
+  padding: 6px;
+  list-style: none;
+  background: rgba(20,20,20,0.9);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 12px;
+  max-height: 260px;
+  overflow: auto;
+  box-shadow: 0 12px 24px rgba(0,0,0,0.35);
+}
+
+.combo-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.combo-item:hover,
+.combo-item.active {
+  background: rgba(255,255,255,0.08);
+}
+
+.combo-item-sub {
+  opacity: .7;
+  font-size: 12px;
+}
+
+.combo.compact {
+  position: relative;
+  width: min(260px, 90vw);
+}
+
+.combo.compact .combo-input {
+  height: 34px;
+  padding: 6px 28px 6px 28px;
+  font-size: 0.9rem;
+  border: 1px solid rgba(0,0,0,.15);
+  border-radius: 10px;
+  outline: none;
+  backdrop-filter: blur(2px);
+  box-shadow: 0 2px 10px rgba(0,0,0,.06);
+  background: rgba(255, 255, 255, 0.10);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+.combo.compact .combo-icon {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.95rem;
+  opacity: .6;
+  pointer-events: none;
+}
+
+.combo.compact .combo-clear {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 0;
+  background: transparent;
+  font-size: .9rem;
+  opacity: .6;
+  cursor: pointer;
+}
+
+.combo.compact .combo-clear:hover { opacity: .9; }
+
+.combo.compact .combo-menu {
+  position: absolute;
+  left: 0;
+  top: calc(100% + 6px);
+  width: 100%;
+  max-height: 160px;
+  overflow: auto;
+  padding: 4px;
+  border-radius: 10px;
+  border: 1px solid rgba(0,0,0,.12);
+  background: rgba(255,255,255,.96);
+  box-shadow: 0 8px 20px rgba(0,0,0,.08);
+  z-index: 30;
+}
+
+.combo.compact .combo-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 10px;
+  font-size: 0.9rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.combo.compact .combo-item:hover,
+.combo.compact .combo-item.active {
+  background: rgba(0,0,0,.06);
+}
+
+.combo.compact .combo-item-sub {
+  opacity: .55;
+  font-size: .8rem;
+}
+
+.table-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.table-header .filters {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.pager-info {
+  opacity: .85;
 }

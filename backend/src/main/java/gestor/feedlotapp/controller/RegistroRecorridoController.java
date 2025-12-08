@@ -1,6 +1,6 @@
 package gestor.feedlotapp.controller;
 
-import gestor.feedlotapp.entities.RegistroRecorrido;
+import gestor.feedlotapp.dto.registrorecorrido.*;
 import gestor.feedlotapp.service.RegistroRecorridoService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -15,40 +15,40 @@ import java.util.List;
 @Validated
 public class RegistroRecorridoController {
 
-    private final RegistroRecorridoService registroRecorridoService;
+    private final RegistroRecorridoService service;
 
-    public RegistroRecorridoController(RegistroRecorridoService registroRecorridoService) {
-        this.registroRecorridoService = registroRecorridoService;
+    public RegistroRecorridoController(RegistroRecorridoService service) {
+        this.service = service;
     }
 
     @GetMapping
-    public ResponseEntity<List<RegistroRecorrido>> getAll() {
-        return ResponseEntity.ok(registroRecorridoService.getAll());
+    public ResponseEntity<List<RegistroRecorridoResponseDto>> getAll() {
+        return ResponseEntity.ok(service.getAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<RegistroRecorrido> getById(@PathVariable Integer id) {
-        return ResponseEntity.ok(registroRecorridoService.getById(id));
+    public ResponseEntity<RegistroRecorridoResponseDto> getById(@PathVariable Integer id) {
+        return ResponseEntity.ok(service.getById(id));
     }
 
     @PostMapping
-    public ResponseEntity<RegistroRecorrido> create(@Valid @RequestBody RegistroRecorrido registroRecorrido) {
-        RegistroRecorrido creado = registroRecorridoService.create(registroRecorrido);
-        URI location = URI.create("/api/registrorecorrido/" + creado.getRegistroRecorridoId());
+    public ResponseEntity<RegistroRecorridoResponseDto> create(@Valid @RequestBody RegistroRecorridoCreateDto dto) {
+        var creado = service.create(dto);
+        URI location = URI.create("/api/registrorecorrido/" + creado.registroRecorridoId());
         return ResponseEntity.created(location).body(creado);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<RegistroRecorrido> update(
+    @PatchMapping("/{id}")
+    public ResponseEntity<RegistroRecorridoResponseDto> update(
             @PathVariable Integer id,
-            @Valid @RequestBody RegistroRecorrido registroRecorrido
+            @Valid @RequestBody RegistroRecorridoUpdateDto dto
     ) {
-        return ResponseEntity.ok(registroRecorridoService.update(id, registroRecorrido));
+        return ResponseEntity.ok(service.update(id, dto));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Integer id) {
-        registroRecorridoService.delete(id);
+        service.delete(id);
         return ResponseEntity.noContent().build();
     }
 }

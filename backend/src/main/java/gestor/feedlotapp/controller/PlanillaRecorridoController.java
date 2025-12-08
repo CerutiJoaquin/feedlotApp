@@ -1,6 +1,6 @@
 package gestor.feedlotapp.controller;
 
-import gestor.feedlotapp.entities.PlanillaRecorrido;
+import gestor.feedlotapp.dto.planillarecorrido.*;
 import gestor.feedlotapp.service.PlanillaRecorridoService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -15,40 +15,40 @@ import java.util.List;
 @Validated
 public class PlanillaRecorridoController {
 
-    private final PlanillaRecorridoService planillaRecorridoService;
+    private final PlanillaRecorridoService service;
 
-    public PlanillaRecorridoController(PlanillaRecorridoService planillaRecorridoService) {
-        this.planillaRecorridoService = planillaRecorridoService;
+    public PlanillaRecorridoController(PlanillaRecorridoService service) {
+        this.service = service;
     }
 
     @GetMapping
-    public ResponseEntity<List<PlanillaRecorrido>> getAll() {
-        return ResponseEntity.ok(planillaRecorridoService.getAll());
+    public ResponseEntity<List<PlanillaRecorridoResponseDto>> getAll() {
+        return ResponseEntity.ok(service.getAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PlanillaRecorrido> getById(@PathVariable Integer id) {
-        return ResponseEntity.ok(planillaRecorridoService.getById(id));
+    public ResponseEntity<PlanillaRecorridoResponseDto> getById(@PathVariable Integer id) {
+        return ResponseEntity.ok(service.getById(id));
     }
 
     @PostMapping
-    public ResponseEntity<PlanillaRecorrido> create(@Valid @RequestBody PlanillaRecorrido planillaRecorrido) {
-        PlanillaRecorrido creado = planillaRecorridoService.create(planillaRecorrido);
-        URI location = URI.create("/api/planillarecorrido/" + creado.getPlanillaRecorridoId());
+    public ResponseEntity<PlanillaRecorridoResponseDto> create(@Valid @RequestBody PlanillaRecorridoCreateDto dto) {
+        var creado = service.create(dto);
+        URI location = URI.create("/api/planillarecorrido/" + creado.planillaRecorridoId());
         return ResponseEntity.created(location).body(creado);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<PlanillaRecorrido> update(
+    @PatchMapping("/{id}")
+    public ResponseEntity<PlanillaRecorridoResponseDto> update(
             @PathVariable Integer id,
-            @Valid @RequestBody PlanillaRecorrido planillaRecorrido
+            @Valid @RequestBody PlanillaRecorridoUpdateDto dto
     ) {
-        return ResponseEntity.ok(planillaRecorridoService.update(id, planillaRecorrido));
+        return ResponseEntity.ok(service.update(id, dto));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Integer id) {
-        planillaRecorridoService.delete(id);
+        service.delete(id);
         return ResponseEntity.noContent().build();
     }
 }

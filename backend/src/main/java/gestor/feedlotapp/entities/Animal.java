@@ -1,111 +1,91 @@
 package gestor.feedlotapp.entities;
 
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import gestor.feedlotapp.enums.animal.EstadoAnimal;
+import jakarta.persistence.*;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
-import jakarta.validation.constraints.Positive;
-
 @Entity
 @Table(name = "animal")
-@JsonIgnoreProperties({"pesajes", "tratamientos"})
 public class Animal {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "animal_id")
-    private int animalId;
+    private Long animalId;
+    @Column(nullable = false, unique = true)
     private String caravana;
+    @Column(nullable = false)
     private String raza;
-    private int edad;
+    @Column(nullable = false)
+    private Boolean sexo;
+    @Column(name = "peso_actual", nullable = false, precision = 14, scale = 3)
+    private BigDecimal pesoActual;
 
-    @Positive
-    @Column(name="peso_actual")
-    private float pesoActual;
-    private boolean sexo;
-    @Column(name = "estado_salud")
+    @JsonIgnoreProperties
+    @Column(name = "peso_inicial", precision = 14, scale = 3)
+    private BigDecimal pesoInicial;
+    @Column(name = "estado_salud", nullable = false)
     private String estadoSalud;
-    @ManyToOne
-    @JoinColumn(name = "corral_id") 
-    @JsonIgnore
+    @Column(name= "edad_meses")
+    private Integer edadMeses;
+
+    @Column(name = "fecha_nacimiento")
+    private LocalDate fechaNacimiento;
+
+    @Column(name = "fecha_ingreso", nullable = false, updatable = false)
+    private LocalDate fechaIngreso;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "corral_id", nullable = false)
     private Corral corral;
 
-    @ManyToOne
-    @JoinColumn(name = "venta_lote_id")
-    private VentaLote ventaLote;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado", nullable = false)
+    private EstadoAnimal estado = EstadoAnimal.ACTIVO;
 
-    @OneToMany(mappedBy = "animal", cascade = CascadeType.ALL)
-     @JsonIgnoreProperties("animal")
-    private List<Pesaje> pesajes;
+    @Column(name = "fecha_baja")
+    private LocalDate fechaBaja;
+    @Column(name = "motivo_baja")
+    private String motivoBaja;
+
+
+    @OneToOne
+    @JoinColumn(name = "venta_detalle_id")
+    private VentaDetalle ventaDetalleBaja;
 
 
     @OneToMany(mappedBy = "animal", cascade = CascadeType.ALL, orphanRemoval = true)
-     @JsonIgnoreProperties("animal")
     private List<RegistroTratamiento> tratamientos = new ArrayList<>();
 
-    // Constructores
-    public Animal(){}
+    @OneToMany(mappedBy = "animal", cascade = CascadeType.ALL)
+    private List<Pesaje> pesajes = new ArrayList<>();
 
-    public Animal(int animalId, String caravana, String raza, int edad, float pesoActual,
-                  boolean sexo, String estadoSalud, Corral corral) {
-        this.animalId = animalId;
-        this.caravana = caravana;
-        this.raza = raza;
-        this.edad = edad;
-        this.pesoActual = pesoActual;
-        this.sexo = sexo;
-        this.estadoSalud = estadoSalud;
-        this.corral = corral;
+    @Column(name = "prox_tratamiento")
+    private LocalDate proxTratamiento;
+
+    // Pre insert
+
+    @PrePersist
+    public void prePersist(){
+        if(fechaIngreso == null && pesoInicial == null ){
+            fechaIngreso = LocalDate.now(ZoneId.of("America/Argentina/Cordoba"));
+            pesoInicial = pesoActual;
+        }
     }
-
-    public Animal(int animalId, String caravana, String raza, int edad, float pesoActual,
-                  boolean sexo, String estadoSalud, Corral corral, List<Pesaje> pesajes,
-                  List<RegistroTratamiento> tratamientos) {
-        this.animalId = animalId;
-        this.caravana = caravana;
-        this.raza = raza;
-        this.edad = edad;
-        this.pesoActual = pesoActual;
-        this.sexo = sexo;
-        this.estadoSalud = estadoSalud;
-        this.corral = corral;
-        this.pesajes = pesajes;
-        this.tratamientos = tratamientos;
-    }
-
 
     // Setters y Getters
-    @JsonProperty("corralId")
-    public Integer getCorralId() {
-        return corral != null
-                ? corral.getCorralId()
-                : null;
-    }
 
-    public void setCorralId(Integer id) {
-        if (this.corral == null) {
-            this.corral = new Corral();
-        }
-        this.corral.setCorralId(id);
-    }
-
-    public int getAnimalId() {
+    public Long getAnimalId() {
         return animalId;
     }
 
-    public void setAnimalId(int animalId) {
+    public void setAnimalId(Long animalId) {
         this.animalId = animalId;
     }
 
@@ -125,36 +105,49 @@ public class Animal {
         this.raza = raza;
     }
 
-    public int getEdad() {
-        return edad;
-    }
-
-    public void setEdad(int edad) {
-        this.edad = edad;
-    }
-
-    public float getPesoActual() {
-        return pesoActual;
-    }
-
-    public void setPesoActual(float pesoActual) {
-        this.pesoActual = pesoActual;
-    }
-
-    public boolean getSexo() {
+    public Boolean getSexo() {
         return sexo;
     }
 
-    public void setSexo(boolean sexo) {
+    public void setSexo(Boolean sexo) {
         this.sexo = sexo;
+    }
+
+    public BigDecimal getPesoActual() {
+        return pesoActual;
+    }
+
+    public void setPesoActual(BigDecimal pesoActual) {
+        this.pesoActual = pesoActual;
     }
 
     public String getEstadoSalud() {
         return estadoSalud;
     }
 
-    public void setEstadoSalud(String estado_salud) {
-        this.estadoSalud = estado_salud;
+    public void setEstadoSalud(String estadoSalud) {
+        this.estadoSalud = estadoSalud;
+    }
+
+
+    public void setEdadMeses(Integer edadMeses) {
+        this.edadMeses = edadMeses;
+    }
+
+    public LocalDate getFechaNacimiento() {
+        return fechaNacimiento;
+    }
+
+    public void setFechaNacimiento(LocalDate fechaNacimiento) {
+        this.fechaNacimiento = fechaNacimiento;
+    }
+
+    public LocalDate getFechaIngreso() {
+        return fechaIngreso;
+    }
+
+    public void setFechaIngreso(LocalDate fechaIngreso) {
+        this.fechaIngreso = fechaIngreso;
     }
 
     public Corral getCorral() {
@@ -163,14 +156,6 @@ public class Animal {
 
     public void setCorral(Corral corral) {
         this.corral = corral;
-    }
-
-    public List<Pesaje> getPesajes() {
-        return pesajes;
-    }
-
-    public void setPesajes(List<Pesaje> pesajes) {
-        this.pesajes = pesajes;
     }
 
 
@@ -182,11 +167,63 @@ public class Animal {
         this.tratamientos = tratamientos;
     }
 
-    public VentaLote getVentaLote() {
-        return ventaLote;
+    public List<Pesaje> getPesajes() {
+        return pesajes;
     }
 
-    public void setVentaLote(VentaLote ventaLote) {
-        this.ventaLote = ventaLote;
+    public void setPesajes(List<Pesaje> pesajes) {
+        this.pesajes = pesajes;
+    }
+
+    public LocalDate getProxTratamiento() {
+        return proxTratamiento;
+    }
+
+    public void setProxTratamiento(LocalDate proxTratamiento) {
+        this.proxTratamiento = proxTratamiento;
+    }
+
+    public Integer getEdadMeses() {
+        return edadMeses;
+    }
+
+    public BigDecimal getPesoInicial() {
+        return pesoInicial;
+    }
+
+    public void setPesoInicial(BigDecimal pesoInicial) {
+        this.pesoInicial = pesoInicial;
+    }
+
+    public EstadoAnimal getEstado() {
+        return estado;
+    }
+
+    public void setEstado(EstadoAnimal estado) {
+        this.estado = estado;
+    }
+
+    public LocalDate getFechaBaja() {
+        return fechaBaja;
+    }
+
+    public void setFechaBaja(LocalDate fechaBaja) {
+        this.fechaBaja = fechaBaja;
+    }
+
+    public String getMotivoBaja() {
+        return motivoBaja;
+    }
+
+    public void setMotivoBaja(String motivoBaja) {
+        this.motivoBaja = motivoBaja;
+    }
+
+    public VentaDetalle getVentaDetalleBaja() {
+        return ventaDetalleBaja;
+    }
+
+    public void setVentaDetalleBaja(VentaDetalle ventaDetalleBaja) {
+        this.ventaDetalleBaja = ventaDetalleBaja;
     }
 }

@@ -1,7 +1,10 @@
 package gestor.feedlotapp.controller;
 
-import gestor.feedlotapp.entities.Corral;
+import gestor.feedlotapp.dto.corral.CorralCreateDto;
+import gestor.feedlotapp.dto.corral.CorralUpdateDto;
+import gestor.feedlotapp.dto.corral.CorralResponseDto;
 import gestor.feedlotapp.service.CorralService;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -15,41 +18,43 @@ import java.util.List;
 @Validated
 public class CorralController {
 
-    private final CorralService corralService;
+    private final CorralService service;
 
-    public CorralController(CorralService corralService) {
-        this.corralService = corralService;
+    public CorralController(CorralService service) {
+        this.service = service;
     }
 
+
     @GetMapping
-    public ResponseEntity<List<Corral>> getAll() {
-        return ResponseEntity.ok(corralService.findAllByOrderByCorralIdAsc());
+    public ResponseEntity<List<CorralResponseDto>> getAll() {
+        return ResponseEntity.ok(service.findAllByOrderByCorralIdAsc());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Corral> getById(@PathVariable Integer id) {
-        return ResponseEntity.ok(corralService.getById(id));
+    public ResponseEntity<CorralResponseDto> getById(@PathVariable Integer id) {
+        return ResponseEntity.ok(service.getById(id));
     }
 
     @PostMapping
-    public ResponseEntity<Corral> create(@Valid @RequestBody Corral corral) {
-        Corral creado = corralService.create(corral);
-        URI location = URI.create("/api/corral/" + creado.getCorralId());
+    public ResponseEntity<CorralResponseDto> create(@Valid @RequestBody CorralCreateDto dto) {
+        var creado = service.create(dto);
+        URI location = URI.create("/api/corral/" + creado.corralId());
         return ResponseEntity.created(location).body(creado);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Corral> update(
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<CorralResponseDto> update(
             @PathVariable Integer id,
-            @Valid @RequestBody Corral corral
+            @Valid @RequestBody CorralUpdateDto dto
     ) {
-        Corral actualizado = corralService.corral(id, corral);
+        var actualizado = service.update(id, dto);
         return ResponseEntity.ok(actualizado);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Integer id) {
-        corralService.delete(id);
+        service.delete(id);
         return ResponseEntity.noContent().build();
     }
 }

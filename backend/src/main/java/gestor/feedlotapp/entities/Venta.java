@@ -1,98 +1,55 @@
 package gestor.feedlotapp.entities;
 
 import jakarta.persistence.*;
-
-import java.util.Date;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
-@Entity
-@Table(name = "venta")
+@Entity @Table(name = "venta")
 public class Venta {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "venta_id")
-    private Integer ventaId;
-    @Temporal(TemporalType.DATE)
-    private Date fecha;
-    private String lote;
-    private float monto;
-    @ManyToOne
-    @JoinColumn(name = "remate_id")
-    private Remate remate;
-    @ManyToOne
+    private Long ventaId;
+
+    private LocalDate fecha;
+
+    @Column(precision = 14, scale = 2)
+    private BigDecimal total;
+
+    @ManyToOne(optional = true)
     @JoinColumn(name = "cliente_id")
     private Cliente cliente;
-    @OneToMany(mappedBy = "venta", cascade = CascadeType.ALL)
-    private List<VentaLote> lotes;
 
-    // Constructores
-    public Venta(){}
+    @OneToMany(mappedBy = "venta", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<VentaDetalle> detalles = new ArrayList<>();
 
-    public Venta(int ventaId, Date fecha, String lote, float monto, Remate remate, Cliente cliente, List<VentaLote> lotes) {
-        this.ventaId = ventaId;
-        this.fecha = fecha;
-        this.lote = lote;
-        this.monto = monto;
-        this.remate = remate;
-        this.cliente = cliente;
-        this.lotes = lotes;
+    // getters y setters
+    public Long getVentaId() { return ventaId; }
+    public void setVentaId(Long ventaId) { this.ventaId = ventaId; }
+    public LocalDate getFecha() { return fecha; }
+    public void setFecha(LocalDate fecha) { this.fecha = fecha; }
+    public BigDecimal getTotal() { return total; }
+    public void setTotal(BigDecimal total) { this.total = total; }
+    public Cliente getCliente() { return cliente; }
+    public void setCliente(Cliente cliente) { this.cliente = cliente; }
+    public void addDetalle(VentaDetalle d) {
+        detalles.add(d);
+        d.setVenta(this);
     }
 
-    // Setters y Getters
-
-    public Integer getVentaId() {
-        return ventaId;
+    public void removeDetalle(VentaDetalle d) {
+        detalles.remove(d);
+        d.setVenta(null);
     }
 
-    public void setVentaId(Integer ventaId) {
-        this.ventaId = ventaId;
+    public List<VentaDetalle> getDetalles() {
+        return detalles;
     }
 
-    public Date getFecha() {
-        return fecha;
-    }
-
-    public void setFecha(Date fecha) {
-        this.fecha = fecha;
-    }
-
-    public String getLote() {
-        return lote;
-    }
-
-    public void setLote(String lote) {
-        this.lote = lote;
-    }
-
-    public float getMonto() {
-        return monto;
-    }
-
-    public void setMonto(float monto) {
-        this.monto = monto;
-    }
-
-    public Remate getRemate() {
-        return remate;
-    }
-
-    public void setRemate(Remate remate) {
-        this.remate = remate;
-    }
-
-    public Cliente getCliente() {
-        return cliente;
-    }
-
-    public void setCliente(Cliente cliente) {
-        this.cliente = cliente;
-    }
-
-    public List<VentaLote> getLotes() {
-        return lotes;
-    }
-
-    public void setLotes(List<VentaLote> lotes) {
-        this.lotes = lotes;
+    public void recalcularTotal() {
+        this.total = detalles.stream()
+                .map(VentaDetalle::getImporte)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 }

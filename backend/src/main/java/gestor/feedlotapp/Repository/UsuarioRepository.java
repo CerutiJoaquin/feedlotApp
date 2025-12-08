@@ -1,4 +1,4 @@
-package gestor.feedlotapp.Repository;
+package gestor.feedlotapp.repository;
 
 import gestor.feedlotapp.entities.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;

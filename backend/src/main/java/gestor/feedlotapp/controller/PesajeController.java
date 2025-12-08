@@ -1,19 +1,22 @@
 package gestor.feedlotapp.controller;
 
-import gestor.feedlotapp.entities.Pesaje;
+import gestor.feedlotapp.dto.pesaje.PesajeCreateDto;
+import gestor.feedlotapp.dto.pesaje.PesajeUpdateDto;
+import gestor.feedlotapp.dto.pesaje.PesajeResponseDto;
 import gestor.feedlotapp.service.PesajeService;
-import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
 import java.net.URI;
-import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
 
+@CrossOrigin(origins = "*")
 @RestController
-@RequestMapping("/api/pesajes")
-@Validated
+@RequestMapping("/api/pesaje")
 public class PesajeController {
 
     private final PesajeService pesajeService;
@@ -23,57 +26,55 @@ public class PesajeController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Pesaje>> getAll() {
+    public ResponseEntity<List<PesajeResponseDto>> getAllPesajes() {
         return ResponseEntity.ok(pesajeService.getAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Pesaje> getById(@PathVariable Integer id) {
+    public ResponseEntity<PesajeResponseDto> getPesajeById(@PathVariable Long id) {
         return ResponseEntity.ok(pesajeService.getById(id));
     }
 
     @PostMapping
-    public ResponseEntity<Pesaje> create(@Valid @RequestBody Pesaje pesaje) {
-        Pesaje creado = pesajeService.create(pesaje);
-        URI location = URI.create("/api/pesajes/" + creado.getPesajeId());
+    public ResponseEntity<PesajeResponseDto> createPesaje(@Valid @RequestBody PesajeCreateDto dto) {
+        var creado = pesajeService.create(dto);
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(creado.pesajeId())
+                .toUri();
         return ResponseEntity.created(location).body(creado);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Pesaje> update(
-            @PathVariable Integer id,
-            @Valid @RequestBody Pesaje pesaje
+    @PatchMapping("/{id}")
+    public ResponseEntity<PesajeResponseDto> updatePesaje(
+            @PathVariable Long id,
+            @Valid @RequestBody PesajeUpdateDto dto
     ) {
-        return ResponseEntity.ok(pesajeService.update(id, pesaje));
+        return ResponseEntity.ok(pesajeService.update(id, dto));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Integer id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         pesajeService.delete(id);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/animal/{animalId}")
-    public ResponseEntity<List<Pesaje>> getByAnimalId(@PathVariable Integer animalId) {
-        return ResponseEntity.ok(
-                pesajeService.getPesajesByAnimalIdOrdered(animalId)
-        );
+    public ResponseEntity<List<PesajeResponseDto>> getByAnimalId(@PathVariable Long animalId) {
+        return ResponseEntity.ok(pesajeService.getPesajesByAnimalIdOrdered(animalId));
     }
 
     @GetMapping("/caravana/{caravana}")
-    public ResponseEntity<List<Pesaje>> getByCaravana(@PathVariable String caravana) {
-        return ResponseEntity.ok(
-                pesajeService.getPesajesByCaravanaOrdered(caravana)
-        );
+    public ResponseEntity<List<PesajeResponseDto>> getByCaravana(@PathVariable String caravana) {
+        return ResponseEntity.ok(pesajeService.getPesajesByCaravanaOrdered(caravana));
     }
 
     @GetMapping("/fecha")
-    public ResponseEntity<List<Pesaje>> getByFechaBetween(
-            @RequestParam Date desde,
-            @RequestParam Date hasta
+    public ResponseEntity<List<PesajeResponseDto>> getByFechaBetween(
+            @RequestParam LocalDate desde,
+            @RequestParam LocalDate hasta
     ) {
-        return ResponseEntity.ok(
-                pesajeService.getPesajesBetweenDates(desde, hasta)
-        );
+        return ResponseEntity.ok(pesajeService.getPesajesBetweenDates(desde, hasta));
     }
 }

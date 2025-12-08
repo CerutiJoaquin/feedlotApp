@@ -1,9 +1,8 @@
 package gestor.feedlotapp.entities;
 
-
 import jakarta.persistence.*;
-
-import java.sql.Date;
+import java.time.LocalDate;
+import java.time.ZoneId;
 
 @Entity
 @Table(name = "pesaje")
@@ -11,67 +10,43 @@ public class Pesaje {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "pesaje_id")
-    private int pesajeId;
-    @Temporal(TemporalType.DATE)
-    private Date fecha;
+    private Long pesajeId;
+
+    @Column(nullable = false)
+    private LocalDate fecha;
+
+    @Column(nullable = false)
     private float peso;
-    private String observaciones;
-    @ManyToOne
-    @JoinColumn(name = "animal_id")
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "animal_id", nullable = false)
     private Animal animal;
 
+    @PrePersist
+    public void prePersist(){
+        if(fecha == null){
+            fecha = LocalDate.now(ZoneId.of("America/Argentina/Cordoba"));
+        }
+    }
 
-    // Constructores
     public Pesaje(){}
 
-    public Pesaje(int pesajeId, Date fecha, float peso, String observaciones, Animal animal) {
-        pesajeId = pesajeId;
+    public Pesaje(Long pesajeId, float peso, LocalDate fecha, Animal animal) {
+        this.pesajeId = pesajeId;
         this.fecha = fecha;
         this.peso = peso;
-        this.observaciones = observaciones;
         this.animal = animal;
     }
 
-    // Getters y Setters
+    public Long getPesajeId() { return pesajeId; }
+    public void setPesajeId(Long pesajeId) { this.pesajeId = pesajeId; }
 
+    public LocalDate getFecha() { return fecha; }
+    public void setFecha(LocalDate fecha) { this.fecha = fecha; }
 
-    public int getPesajeId() {
-        return pesajeId;
-    }
+    public float getPeso() { return peso; }
+    public void setPeso(float peso) { this.peso = peso; }
 
-    public void setPesajeId(int pesajeId) {
-        pesajeId = pesajeId;
-    }
-
-    public Date getFecha() {
-        return fecha;
-    }
-
-    public void setFecha(Date fecha) {
-        this.fecha = fecha;
-    }
-
-    public float getPeso() {
-        return peso;
-    }
-
-    public void setPeso(float peso) {
-        this.peso = peso;
-    }
-
-    public String getObservaciones() {
-        return observaciones;
-    }
-
-    public void setObservaciones(String observaciones) {
-        this.observaciones = observaciones;
-    }
-
-    public Animal getAnimal() {
-        return animal;
-    }
-
-    public void setAnimal(Animal animal_id) {
-        this.animal = animal_id;
-    }
+    public Animal getAnimal() { return animal; }
+    public void setAnimal(Animal animal) { this.animal = animal; }
 }
