@@ -1,14 +1,26 @@
 import axios from "axios";
 
-const API_URL = "/api/predicciones";
 
-export const getPesoPrediccion = (query) =>
-  axios.get(`${API_URL}/peso`, { params: { q: query } });
+const API_SPRING = "http://localhost:8080/api/predicciones";
 
-export const getConsumoPrediccion = (corralId) =>
-  axios.get(`${API_URL}/consumo/${corralId}`);
+const API_PYTHON = "http://localhost:8000";
 
-export const getConsumoMensualDashboard = (meses = 6) =>
-  axios.get(`${API_URL}/dashboard/consumo-mensual`, {
-    params: { meses },
+
+export const getConsumoMensualFeedlot = (meses = 6) =>
+  axios.get(`${API_SPRING}/consumo-mensual`, {
+    params: { meses }
   });
+
+
+export const getPesoPrediccion = (animalId, meses) =>
+  axios.post(`${API_PYTHON}/predict/peso`, {
+    animal_id: animalId,
+    meses: meses,
+  });
+
+export const getConsumoPrediccion = ({ corral_id, dias }) =>
+  axios.post(`${API_PYTHON}/predict/consumo`, {
+    corral_id,
+    dias,
+  });
+

@@ -10,7 +10,6 @@ import jakarta.validation.constraints.NotBlank;
 import java.net.URI;
 import java.util.Map;
 
-// DTOs con sus validaciones
 record RegisterRequest(
         @NotBlank String nombre,
         @NotBlank String apellido,
@@ -36,7 +35,6 @@ public class AuthController {
     public ResponseEntity<UserDTO> register(@Valid @RequestBody RegisterRequest r) {
         var u = auth.register(r.nombre(), r.apellido(), r.email(), r.contrasenia());
         var dto = new UserDTO(u.getUsuarioId(), u.getNombre(), u.getApellido(), u.getEmail());
-        // 201 Created + Location (opcional)
         return ResponseEntity.created(URI.create("/api/auth/users/" + u.getUsuarioId())).body(dto);
     }
 

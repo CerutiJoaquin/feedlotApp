@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import TabBar from "../../components/layout/TabBar/TabBar";
-import Chart from "../../components/common/Chart";
+import PredictionChart from "../../components/common/PredictionChart";
 import {
   getPesoPrediccion,
   getConsumoPrediccion,
@@ -12,21 +12,18 @@ export default function PredictionPage() {
     { key: "predictPesoAnimal", label: "Peso de Animal" },
     { key: "predictAlimento", label: "Consumo de Alimento" },
   ];
-  const [activeTab, setActiveTab] = useState(tabs[0].key);
 
+  const [activeTab, setActiveTab] = useState(tabs[0].key);
   const [query, setQuery] = useState("");
-  const [errorQ, setErrorQ] = useState("");
+  const [dias, setDias] = useState(7);
+  const [meses, setMeses] = useState(6);
+
   const [loading, setLoading] = useState(false);
+  const [errorQ, setErrorQ] = useState("");
   const [infoMsg, setInfoMsg] = useState("");
 
   const [pesoData, setPesoData] = useState([]);
   const [consumoData, setConsumoData] = useState([]);
-
-  const formatMonthFromIso = (isoDate) => {
-    const d = new Date(isoDate);
-    if (Number.isNaN(d.getTime())) return isoDate;
-    return d.toLocaleDateString("es-AR", { month: "short" });
-  };
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -36,11 +33,7 @@ export default function PredictionPage() {
     setConsumoData([]);
 
     if (!query.trim()) {
-      setErrorQ(
-        activeTab === "predictAlimento"
-          ? "Ingresa un ID de corral"
-          : "Ingresa un ID de animal"
-      );
+      setErrorQ("Debes ingresar un ID válido");
       return;
     }
 
@@ -48,39 +41,33 @@ export default function PredictionPage() {
       setLoading(true);
 
       if (activeTab === "predictPesoAnimal") {
-        const res = await getPesoPrediccion(query.trim());
-        const data = res.data.map((p) => ({
-          mes: formatMonthFromIso(p.fecha),
-          peso: Number(p.pesoKg),
-          predicho: p.predicho,
-        }));
-        setPesoData(data);
-        if (data.length === 0)
-          setInfoMsg("No se encontraron pesajes para este animal.");
-      } else if (activeTab === "predictAlimento") {
-        const res = await getConsumoPrediccion(query.trim());
-        const data = res.data.map((p) => ({
-          mes: formatMonthFromIso(p.fecha),
-          consumo: Number(p.consumoTotalKg),
-          predicho: p.predicho,
-        }));
-        setConsumoData(data);
-        if (data.length === 0)
-          setInfoMsg(
-            "No se encontraron registros de comedero para este corral."
-          );
-      } else if (activeTab === "predictRendimiento") {
-        setInfoMsg(
-          "La predicción de rendimiento animal aún está en desarrollo."
+        const res = await getPesoPrediccion(Number(query), meses);
+
+        setPesoData(
+          res.data.map((p) => ({
+            fecha: p.fecha,
+            valor: Number(p.pesoKg),
+            predicho: p.predicho,
+          }))
+        );
+      }
+
+      if (activeTab === "predictAlimento") {
+        const res = await getConsumoPrediccion({
+          corral_id: Number(query),
+          dias: dias,
+        });
+
+        setConsumoData(
+          res.data.map((p) => ({
+            fecha: p.fecha,
+            valor: Number(p.consumoKg),
+            predicho: p.predicho,
+          }))
         );
       }
     } catch (err) {
-      console.error(err);
-      if (err.response && err.response.status === 404) {
-        setErrorQ("Animal no encontrado o no se encuentra ACTIVO.");
-      } else {
-        setErrorQ("Ocurrió un error al obtener la predicción.");
-      }
+      setErrorQ("Error obteniendo la predicción");
     } finally {
       setLoading(false);
     }
@@ -88,75 +75,97 @@ export default function PredictionPage() {
 
   return (
     <div className="prediction-page">
-      <TabBar
-        tabs={tabs}
-        activeKey={activeTab}
-        onSelect={(key) => {
-          setActiveTab(key);
-          setQuery("");
-          setErrorQ("");
-          setInfoMsg("");
-          setPesoData([]);
-          setConsumoData([]);
-        }}
-      />
+      <TabBar tabs={tabs} activeKey={activeTab} onSelect={setActiveTab} />
 
-      <div className="prediction-content">
-        {(activeTab === "predictPesoAnimal" ||
-          activeTab === "predictAlimento") && (
-          <form className="pred-form" onSubmit={handleSearch}>
-            <input
-              type={activeTab === "predictPesoAnimal" ? "text" : "number"}
-              placeholder={
-                activeTab === "predictPesoAnimal"
-                  ? "ID o N° Caravana"
-                  : "ID de Corral"
-              }
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
-            <button type="submit" disabled={loading}>
-              {loading ? "Buscando…" : "🔍"}
-            </button>
-          </form>
-        )}
+      {activeTab === "predictPesoAnimal" && (
+        <form className="predict-form" onSubmit={handleSearch}>
+          <div className="predict-box">
+            <div className="predict-title">Predicción de peso del animal</div>
 
-        {errorQ && <p className="error">{errorQ}</p>}
-        {infoMsg && <p className="info">{infoMsg}</p>}
+            <div className="predict-subtitle">
+              Ingresá el ID del animal y los meses a predecir
+            </div>
 
-        {activeTab === "predictPesoAnimal" && pesoData.length > 0 && (
-          <div className="prediction-card">
-            <h2>Predicción de Peso (kg) para animal ID: {query}</h2>
-            <Chart
-              tipo="line"
-              data={pesoData}
-              dataKey="peso"
-              label="Peso (kg)"
-            />
+            <div className="input-row">
+              <div className="input-field">
+                <label>ID del animal</label>
+                <input
+                  type="number"
+                  placeholder="Ej: 12"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                />
+              </div>
+
+              <div className="input-field">
+                <label>Meses futuros</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="24"
+                  value={meses}
+                  onChange={(e) => setMeses(Number(e.target.value))}
+                />
+              </div>
+
+              <button type="submit" disabled={loading}>
+                Predecir
+              </button>
+            </div>
           </div>
-        )}
+        </form>
+      )}
 
-        {activeTab === "predictRendimiento" && (
-          <div className="prediction-card">
-            <h2>Predicción de Rendimiento Animal</h2>
-            <p>Esta funcionalidad se añadirá más adelante.</p>
-          </div>
-        )}
+      {activeTab === "predictAlimento" && (
+        <form className="predict-form" onSubmit={handleSearch}>
+          <div className="predict-box">
+            <div className="predict-title">
+              Predicción de consumo de alimento
+            </div>
 
-        {activeTab === "predictAlimento" && consumoData.length > 0 && (
-          <div className="prediction-card">
-            <h2>
-              Predicción de Consumo de Alimento (kg) para corral ID: {query}
-            </h2>
-            <Chart
-              tipo="line"
-              data={consumoData}
-              dataKey="consumo"
-              label="Consumo total (kg)"
-            />
+            <div className="predict-subtitle">
+              Ingresá el ID del corral y la cantidad de días a predecir
+            </div>
+
+            <div className="input-row">
+              <div className="input-field">
+                <label>ID de corral</label>
+                <input
+                  type="number"
+                  placeholder="Ej: 3"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                />
+              </div>
+
+              <div className="input-field">
+                <label>Días futuros</label>
+                <input
+                  type="number"
+                  min="1"
+                  value={dias}
+                  onChange={(e) => setDias(Number(e.target.value))}
+                />
+              </div>
+
+              <button type="submit" disabled={loading}>
+                Predecir
+              </button>
+            </div>
           </div>
-        )}
-      </div>
+        </form>
+      )}
+
+      {pesoData.length > 0 && activeTab === "predictPesoAnimal" && (
+        <PredictionChart data={pesoData} yLabel="Kg" />
+      )}
+
+      {consumoData.length > 0 && activeTab === "predictAlimento" && (
+        <PredictionChart data={consumoData} yLabel="Kg / día" />
+      )}
+
+      {errorQ && <div className="error-msg">{errorQ}</div>}
+      {infoMsg && <div className="info-msg">{infoMsg}</div>}
     </div>
   );
 }

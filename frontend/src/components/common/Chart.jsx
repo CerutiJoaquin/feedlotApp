@@ -1,14 +1,16 @@
-// src/components/common/Chart.jsx
 import React, { useEffect, useRef } from 'react'
 import ChartJS from 'chart.js/auto'
 
 export default function Chart({ tipo = 'line', data, dataKey, label }) {
   const canvasRef = useRef(null)
 
+  
+  
+  
   useEffect(() => {
-    const ctx = canvasRef.current.getContext('2d')
+  const ctx = canvasRef.current.getContext('2d')
 
-    // Opcional: crear un gradient suave
+
     const gradient = ctx.createLinearGradient(0, 0, 0, 200)
     gradient.addColorStop(0, 'rgba(76,175,80,0.3)')
     gradient.addColorStop(1, 'rgba(76,175,80,0)')
@@ -20,11 +22,11 @@ export default function Chart({ tipo = 'line', data, dataKey, label }) {
         datasets: [{
           label: label,
           data: data.map(d => d[dataKey]),
-          fill: true,                  // true para área ligera
-          backgroundColor: gradient,   // o 'rgba(76,175,80,0.1)'
+          fill: true,                 
+          backgroundColor: gradient,  
           borderColor: 'rgba(76,175,80,1)',
           borderWidth: 3,
-          tension: 0.4,                // suaviza la curva
+          tension: 0.4,          
           pointRadius: 5,
           pointBackgroundColor: 'white',
           pointBorderColor: 'rgba(76,175,80,1)',

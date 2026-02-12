@@ -105,12 +105,7 @@ export default function Topbar({ usuario, onLogout }) {
     <header className="topbar">
       <div className="topbar__logo">FeedlotGestor</div>
 
-      <input
-        type="search"
-        placeholder="🔍 Buscar..."
-        className="topbar__search"
-        autoComplete="off"
-      />
+    
 
       <div className="topbar__actions" ref={actionsRef}>
         

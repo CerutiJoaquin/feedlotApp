@@ -1,8 +1,6 @@
 package gestor.feedlotapp.controller;
 
-import gestor.feedlotapp.dto.predicciones.ConsumoMensualDTO;
-import gestor.feedlotapp.dto.predicciones.ConsumoPrediccionDTO;
-import gestor.feedlotapp.dto.predicciones.PesoPrediccionDTO;
+import gestor.feedlotapp.dto.predicciones.*;
 import gestor.feedlotapp.service.PrediccionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -10,28 +8,42 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/predicciones")
 @RequiredArgsConstructor
 public class PrediccionController {
+
     private final PrediccionService service;
 
     @GetMapping("/peso")
-    public ResponseEntity<List<PesoPrediccionDTO>> prediccionPeso(@RequestParam("q") String query) {
-        return ResponseEntity.ok(service.predecirPesoAnimal(query));
+    public ResponseEntity<List<PesoPrediccionDTO>> prediccionPeso(
+            @RequestParam Long animalId,
+            @RequestParam(defaultValue = "6") int meses
+    ) {
+        return ResponseEntity.ok(
+                service.predecirPesoAnimal(animalId, meses)
+        );
     }
 
-    @GetMapping("/consumo/{corralId}")
-    public ResponseEntity<List<ConsumoPrediccionDTO>> prediccionConsumo(@PathVariable Integer corralId) {
-        return ResponseEntity.ok(service.predecirConsumoCorral(corralId));
+    @PostMapping("/consumo")
+    public ResponseEntity<List<ConsumoPrediccionDTO>> predecirConsumo(
+            @RequestBody ConsumoPrediccionRequestDTO req
+    ) {
+        return ResponseEntity.ok(
+                service.predecirConsumoCorral(
+                        req.corralId(),
+                        req.dias()
+                )
+        );
     }
 
-    @GetMapping("/dashboard/consumo-mensual")
+    @GetMapping("/consumo-mensual")
     public ResponseEntity<List<ConsumoMensualDTO>> consumoMensualDashboard(
-            @RequestParam(name = "meses", defaultValue = "6") int meses) {
-
-        return ResponseEntity.ok(service.obtenerConsumoMensualAlimento(meses));
+            @RequestParam(defaultValue = "6") int meses
+    ) {
+        return ResponseEntity.ok(
+                service.obtenerConsumoMensualAlimento(meses)
+        );
     }
-
-
 }

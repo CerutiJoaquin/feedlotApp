@@ -1,6 +1,8 @@
 package gestor.feedlotapp.service;
 
-
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import gestor.feedlotapp.dto.predicciones.*;
 import gestor.feedlotapp.entities.Animal;
 import gestor.feedlotapp.entities.Pesaje;
 import gestor.feedlotapp.entities.RegistroComedero;
@@ -11,14 +13,14 @@ import gestor.feedlotapp.repository.RegistroComederoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import gestor.feedlotapp.dto.predicciones.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 @Service
@@ -29,199 +31,149 @@ public class PrediccionService {
     private final RegistroComederoRepository registroComederoRepo;
     private final AnimalRepository animalRepo;
 
-    // PREDICCIÓN DE PESO POR ANIMAL
-    public List<PesoPrediccionDTO> predecirPesoAnimal(String query) {
+    private final ObjectMapper mapper = new ObjectMapper();
 
-        Optional<Animal> optAnimal;
+    public List<PesoPrediccionDTO> predecirPesoAnimal(Long animalId, int meses) {
 
-        if (query.matches("\\d+")) {
-            Long id = Long.parseLong(query);
-            optAnimal = animalRepo.findByAnimalIdAndEstado(id, EstadoAnimal.ACTIVO);
-        } else {
-            optAnimal = animalRepo.findByCaravanaAndEstado(query, EstadoAnimal.ACTIVO);
-        }
-
-        Animal animal = optAnimal.orElseThrow(() ->
-                new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Animal no encontrado o no está ACTIVO"
-                )
-        );
+        Animal animal = animalRepo
+                .findByAnimalIdAndEstado(animalId, EstadoAnimal.ACTIVO)
+                .orElseThrow(() ->
+                        new ResponseStatusException(
+                                HttpStatus.NOT_FOUND,
+                                "Animal no encontrado o no está ACTIVO"
+                        )
+                );
 
         List<Pesaje> pesajes =
                 pesajeRepo.findByAnimal_AnimalIdOrderByFechaAsc(animal.getAnimalId());
 
-        return calcularPrediccionPeso(pesajes);
-    }
-
-
-    private List<PesoPrediccionDTO> calcularPrediccionPeso(List<Pesaje> pesajes) {
-        if (pesajes.isEmpty()) {
-            return Collections.emptyList();
+        if (pesajes.size() < 2) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Se requieren al menos 2 pesajes para predecir"
+            );
         }
 
-        List<PesoPrediccionDTO> resultado = new ArrayList<>();
-        for (Pesaje p : pesajes) {
-            BigDecimal peso = BigDecimal.valueOf(p.getPeso());
-            resultado.add(new PesoPrediccionDTO(p.getFecha(), peso, false));
-        }
+        try {
+            ProcessBuilder pb = new ProcessBuilder(
+                    "python3",
+                    "backend/python/PredictionWeight.py",
+                    animal.getAnimalId().toString(),
+                    String.valueOf(meses)
+            );
 
-        BigDecimal gmd;
-        Pesaje last = pesajes.get(pesajes.size() - 1);
+            pb.redirectErrorStream(true);
+            Process process = pb.start();
 
-        if (pesajes.size() == 1) {
-            gmd = BigDecimal.valueOf(0.8);
-        } else {
-            Pesaje first = pesajes.get(0);
-            long dias = ChronoUnit.DAYS.between(first.getFecha(), last.getFecha());
-            if (dias <= 0) dias = 1;
+            BufferedReader reader =
+                    new BufferedReader(new InputStreamReader(process.getInputStream()));
 
-            BigDecimal lastPeso = BigDecimal.valueOf(last.getPeso());
-            BigDecimal firstPeso = BigDecimal.valueOf(first.getPeso());
-            BigDecimal diff = lastPeso.subtract(firstPeso);
-            gmd = diff.divide(BigDecimal.valueOf(dias), 3, RoundingMode.HALF_UP);
-        }
-
-        for (int i = 1; i <= 3; i++) {
-            LocalDate fechaPred = last.getFecha().plusMonths(i);
-            long diasDesdeUltimo = ChronoUnit.DAYS.between(last.getFecha(), fechaPred);
-
-            BigDecimal pesoExtra = gmd.multiply(BigDecimal.valueOf(diasDesdeUltimo));
-            BigDecimal pesoBase = BigDecimal.valueOf(last.getPeso());
-            BigDecimal pesoPred = pesoBase.add(pesoExtra)
-                    .setScale(2, RoundingMode.HALF_UP);
-
-            resultado.add(new PesoPrediccionDTO(fechaPred, pesoPred, true));
-        }
-
-        return resultado;
-    }
-
-
-    //  PREDICCIÓN DE CONSUMO POR CORRAL
-    public List<ConsumoPrediccionDTO> predecirConsumoCorral(Integer corralId) {
-        LocalDate hoy = LocalDate.now();
-        int diasHaciaAtras = 14;
-        LocalDate desde = hoy.minusDays(diasHaciaAtras);
-
-        List<RegistroComedero> registros =
-                registroComederoRepo.findByCorral_CorralIdAndFechaBetweenOrderByFechaAsc(
-                        corralId, desde, hoy);
-
-        if (registros.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        long cabezas = animalRepo.countByCorral_CorralIdAndEstado(corralId, EstadoAnimal.ACTIVO);
-        if (cabezas <= 0) cabezas = 1;
-
-
-        Map<LocalDate, BigDecimal> consumoPorDia = new TreeMap<>();
-
-        for (RegistroComedero reg : registros) {
-            if (reg.getInsumo() == null ||
-                    reg.getInsumo().getTipo() == null ||
-                    ! "ALIMENTO".equalsIgnoreCase(reg.getInsumo().getTipo())) {
-                continue;
+            StringBuilder json = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                json.append(line);
             }
 
-            BigDecimal cant = reg.getCantidad();
-            if (cant == null) cant = BigDecimal.ZERO;
+            int exitCode = process.waitFor();
+            if (exitCode != 0) {
+                throw new RuntimeException("Error ejecutando script Python");
+            }
 
-            BigDecimal totalDia = consumoPorDia.getOrDefault(reg.getFecha(), BigDecimal.ZERO);
-            consumoPorDia.put(reg.getFecha(), totalDia.add(cant));
+            return mapper.readValue(
+                    json.toString(),
+                    new TypeReference<List<PesoPrediccionDTO>>() {}
+            );
+
+        } catch (Exception e) {
+            throw new ResponseStatusException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Error ejecutando predicción de peso",
+                    e
+            );
         }
-
-        if (consumoPorDia.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        List<ConsumoPrediccionDTO> resultado = new ArrayList<>();
-
-        for (Map.Entry<LocalDate, BigDecimal> e : consumoPorDia.entrySet()) {
-            BigDecimal totalKg = e.getValue().setScale(2, RoundingMode.HALF_UP);
-            BigDecimal porCabeza = totalKg
-                    .divide(BigDecimal.valueOf(cabezas), 3, RoundingMode.HALF_UP);
-
-            resultado.add(new ConsumoPrediccionDTO(
-                    e.getKey(),
-                    totalKg,
-                    porCabeza,
-                    false
-            ));
-        }
-
-        BigDecimal sumaTotales = resultado.stream()
-                .map(ConsumoPrediccionDTO::getConsumoTotalKg)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        BigDecimal promTotal = sumaTotales
-                .divide(BigDecimal.valueOf(resultado.size()), 3, RoundingMode.HALF_UP);
-
-        BigDecimal promPorCabeza = promTotal
-                .divide(BigDecimal.valueOf(cabezas), 3, RoundingMode.HALF_UP);
-
-        for (int i = 1; i <= 7; i++) {
-            LocalDate fechaPred = hoy.plusDays(i);
-
-            resultado.add(new ConsumoPrediccionDTO(
-                    fechaPred,
-                    promTotal.setScale(2, RoundingMode.HALF_UP),
-                    promPorCabeza.setScale(3, RoundingMode.HALF_UP),
-                    true
-            ));
-        }
-
-        return resultado;
     }
 
-    // CONSUMO MENSUAL DE ALIMENTO EN GENERAL
+    public List<ConsumoPrediccionDTO> predecirConsumoCorral(
+            Integer corralId, int dias) {
+
+        try {
+            ProcessBuilder pb = new ProcessBuilder(
+                    "python3",
+                    "backend/python/PredictionConsumption.py",
+                    corralId.toString(),
+                    String.valueOf(dias)
+            );
+
+            pb.redirectErrorStream(true);
+            Process process = pb.start();
+
+            BufferedReader reader =
+                    new BufferedReader(new InputStreamReader(process.getInputStream()));
+
+            StringBuilder json = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                json.append(line);
+            }
+
+            int exitCode = process.waitFor();
+            if (exitCode != 0) {
+                throw new RuntimeException("Error ejecutando Python");
+            }
+
+            return mapper.readValue(
+                    json.toString(),
+                    new TypeReference<List<ConsumoPrediccionDTO>>() {}
+            );
+
+        } catch (Exception e) {
+            throw new ResponseStatusException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Error prediciendo consumo",
+                    e
+            );
+        }
+    }
+
     public List<ConsumoMensualDTO> obtenerConsumoMensualAlimento(int mesesAtras) {
+
         LocalDate hoy = LocalDate.now();
-        LocalDate desde = hoy.minusMonths(mesesAtras - 1L).withDayOfMonth(1);
-        LocalDate hasta = hoy.withDayOfMonth(hoy.lengthOfMonth());
+        YearMonth mesActual = YearMonth.from(hoy);
+        YearMonth desdeMes = mesActual.minusMonths(mesesAtras - 1);
+
+        LocalDate desde = desdeMes.atDay(1);
+        LocalDate hasta = mesActual.atEndOfMonth();
 
         List<RegistroComedero> registros =
                 registroComederoRepo.findByFechaBetweenOrderByFechaAsc(desde, hasta);
 
-        if (registros.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-
         Map<YearMonth, BigDecimal> consumoPorMes = new TreeMap<>();
+        for (int i = 0; i < mesesAtras; i++) {
+            consumoPorMes.put(desdeMes.plusMonths(i), BigDecimal.ZERO);
+        }
 
         for (RegistroComedero reg : registros) {
             if (reg.getInsumo() == null ||
                     reg.getInsumo().getTipo() == null ||
-                    ! "ALIMENTO".equalsIgnoreCase(reg.getInsumo().getTipo())) {
+                    !"ALIMENTO".equalsIgnoreCase(reg.getInsumo().getTipo())) {
                 continue;
             }
 
-            BigDecimal cant = reg.getCantidad();
-            if (cant == null) cant = BigDecimal.ZERO;
+            BigDecimal cant = Optional.ofNullable(reg.getCantidad())
+                    .orElse(BigDecimal.ZERO);
 
             YearMonth ym = YearMonth.from(reg.getFecha());
-            BigDecimal acum = consumoPorMes.getOrDefault(ym, BigDecimal.ZERO);
-            consumoPorMes.put(ym, acum.add(cant));
-        }
-
-        if (consumoPorMes.isEmpty()) {
-            return Collections.emptyList();
+            consumoPorMes.merge(ym, cant, BigDecimal::add);
         }
 
         List<ConsumoMensualDTO> resultado = new ArrayList<>();
-
-        for (Map.Entry<YearMonth, BigDecimal> e : consumoPorMes.entrySet()) {
-            YearMonth ym = e.getKey();
-            LocalDate mesDate = ym.atDay(1);
-            BigDecimal totalMes = e.getValue().setScale(2, RoundingMode.HALF_UP);
-
-            resultado.add(new ConsumoMensualDTO(mesDate, totalMes));
+        for (var e : consumoPorMes.entrySet()) {
+            resultado.add(new ConsumoMensualDTO(
+                    e.getKey().atDay(1),
+                    e.getValue().setScale(2, RoundingMode.HALF_UP)
+            ));
         }
 
         return resultado;
     }
-
-
 }
