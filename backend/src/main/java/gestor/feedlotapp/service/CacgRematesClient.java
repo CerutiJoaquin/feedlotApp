@@ -108,7 +108,7 @@ public class CacgRematesClient {
             }
         }
 
-        all.sort(Comparator.comparing(RemateDto::fechaHora, Comparator.nullsLast(Comparator.naturalOrder())).reversed());
+        all.sort(Comparator.comparing(RemateDto::fechaHora, Comparator.nullsLast(Comparator.naturalOrder())));
         cache = all;
         cacheAt = Instant.now();
         return all;
