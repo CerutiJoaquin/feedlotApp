@@ -20,7 +20,6 @@ export default function ReportPage() {
 
   const [activeTab, setActiveTab] = useState("resumen");
 
-
   const [animales, setAnimales] = useState([]);
   const [corrales, setCorrales] = useState([]);
   const [registrosComedero, setRegistrosComedero] = useState([]);
@@ -94,14 +93,13 @@ export default function ReportPage() {
   const obtenerNombreInsumo = (insumoId) =>
     insumoNombrePorId.get(insumoId) ?? `#${insumoId}`;
 
-
   const totalAnimales = animales.length;
   const totalCorrales = corrales.length;
 
   const corralesOcupadosSet = new Set(
     animales
       .map((a) => a.corralId ?? a.corral?.corralId ?? a.corral ?? null)
-      .filter((id) => id !== null && id !== undefined)
+      .filter((id) => id !== null && id !== undefined),
   );
   const corralesConAnimales = corralesOcupadosSet.size;
 
@@ -112,7 +110,7 @@ export default function ReportPage() {
 
   const consumoTotal = registrosComedero.reduce(
     (acc, r) => acc + parseNumber(r.cantidad),
-    0
+    0,
   );
   const registrosComederoCount = registrosComedero.length;
   const consumoPromedioPorRegistro =
@@ -120,19 +118,18 @@ export default function ReportPage() {
 
   const totalVentas = ventas.reduce(
     (acc, v) => acc + parseNumber(v.total ?? v.montoTotal),
-    0
+    0,
   );
-  const margenEstimado = 0.3; 
+  const margenEstimado = 0.3;
   const gananciaEstimada = Math.round(totalVentas * margenEstimado);
 
   const totalTratamientos = tratamientos.length;
   const animalesTratadosSet = new Set(
     tratamientos
       .map((t) => t.animalId ?? t.animal?.animalId ?? t.animal ?? null)
-      .filter((id) => id !== null && id !== undefined)
+      .filter((id) => id !== null && id !== undefined),
   );
   const animalesTratados = animalesTratadosSet.size;
-
 
   const handleExportPDF = () => {
     if (activeTab === "resumen") exportResumenPDF();
@@ -154,7 +151,7 @@ export default function ReportPage() {
           "Corrales ocupados",
           `${corralesConAnimales} / ${totalCorrales} (${ocupacionPromedio}%)`,
         ],
-        ["Consumo total de alimento (kg)", consumoTotal],
+        ["Consumo total de alimento (kg)", consumoTotal.toFixed(2)],
         ["Ingresos por ventas ($)", totalVentas.toLocaleString("es-AR")],
         ["Registros de tratamiento", totalTratamientos],
         ["Animales tratados", animalesTratados],
@@ -173,7 +170,7 @@ export default function ReportPage() {
       startY: 25,
       head: [["Métrica", "Valor"]],
       body: [
-        ["Consumo total (kg)", consumoTotal],
+        ["Consumo total (kg)", consumoTotal.toFixed(2)],
         [
           "Consumo promedio por registro (kg)",
           consumoPromedioPorRegistro.toFixed(2),
@@ -279,8 +276,7 @@ export default function ReportPage() {
           <h2 className="section-title">
             {activeTab === "resumen" && "Resumen general del feedlot"}
             {activeTab === "alimentacion" && "Reporte de alimentación"}
-            {activeTab === "ventasGanancias" &&
-              "Reporte de ventas y ganancias"}
+            {activeTab === "ventasGanancias" && "Reporte de ventas y ganancias"}
           </h2>
           <button className="export-btn" onClick={handleExportPDF}>
             <span className="export-icon">📄</span>
@@ -306,7 +302,13 @@ export default function ReportPage() {
 
               <div className="report-summary-card">
                 <h3>Consumo total de alimento</h3>
-                <p>{consumoTotal} kg</p>
+                <p>
+                  {consumoTotal.toLocaleString("es-AR", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}{" "}
+                  kg
+                </p>
                 <span>Según registros de comedero</span>
               </div>
 
@@ -347,7 +349,7 @@ export default function ReportPage() {
                       <td>{r.registroComederoId}</td>
                       <td>{obtenerNombreInsumo(r.insumo)}</td>
                       <td>{r.corral}</td>
-                      <td>{parseNumber(r.cantidad)}</td>
+                      <td>{parseNumber(r.cantidad).toFixed(2)}</td>
                       <td>{r.fecha}</td>
                     </tr>
                   ))}
@@ -383,9 +385,9 @@ export default function ReportPage() {
                           ""}
                       </td>
                       <td>
-                        {parseNumber(
-                          v.total ?? v.montoTotal
-                        ).toLocaleString("es-AR")}
+                        {parseNumber(v.total ?? v.montoTotal).toLocaleString(
+                          "es-AR",
+                        )}
                       </td>
                       <td>{v.fecha ?? v.fechaVenta ?? ""}</td>
                     </tr>
@@ -405,7 +407,13 @@ export default function ReportPage() {
             <div className="report-summary-grid">
               <div className="report-summary-card">
                 <h3>Consumo total</h3>
-                <p>{consumoTotal} kg</p>
+                <p>
+                  {consumoTotal.toLocaleString("es-AR", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}{" "}
+                  kg
+                </p>
                 <span>Suma de registros de comedero</span>
               </div>
               <div className="report-summary-card">
@@ -438,7 +446,7 @@ export default function ReportPage() {
                       <td>{r.registroComederoId}</td>
                       <td>{obtenerNombreInsumo(r.insumo)}</td>
                       <td>{r.corral}</td>
-                      <td>{parseNumber(r.cantidad)}</td>
+                      <td>{parseNumber(r.cantidad).toFixed(2)}</td>
                       <td>{r.fecha}</td>
                     </tr>
                   ))}
@@ -497,9 +505,9 @@ export default function ReportPage() {
                           ""}
                       </td>
                       <td>
-                        {parseNumber(
-                          v.total ?? v.montoTotal
-                        ).toLocaleString("es-AR")}
+                        {parseNumber(v.total ?? v.montoTotal).toLocaleString(
+                          "es-AR",
+                        )}
                       </td>
                       <td>{v.fecha ?? v.fechaVenta ?? ""}</td>
                     </tr>
