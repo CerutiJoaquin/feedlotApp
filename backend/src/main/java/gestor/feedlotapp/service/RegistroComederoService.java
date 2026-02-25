@@ -42,7 +42,7 @@ public class RegistroComederoService {
 
     @Transactional(readOnly = true)
     public List<RegistroComederoResponseDto> getAll() {
-        return repo.findAll().stream()
+        return repo.findAllByOrderByFechaDesc().stream()
                 .map(this::toResponse)
                 .toList();
     }

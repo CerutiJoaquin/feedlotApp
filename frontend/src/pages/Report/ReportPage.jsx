@@ -331,8 +331,8 @@ export default function ReportPage() {
               </div>
             </div>
 
+            <h3>Últimos registros de alimentación</h3>
             <div className="table-container">
-              <h3>Últimos registros de alimentación</h3>
               <table className="list-table">
                 <thead>
                   <tr>
@@ -362,8 +362,8 @@ export default function ReportPage() {
               </table>
             </div>
 
+            <h3>Últimas ventas</h3>
             <div className="table-container">
-              <h3>Últimas ventas</h3>
               <table className="list-table">
                 <thead>
                   <tr>

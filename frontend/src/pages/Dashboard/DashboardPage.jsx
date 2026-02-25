@@ -12,7 +12,6 @@ import { getConsumoMensualFeedlot } from "../../services/prediccionService";
 import "./DashboardPage.css";
 
 export default function DashboardPage() {
-
   const [animalCount, setAnimalCount] = useState(0);
   const [corralCount, setCorralCount] = useState(0);
   const [insumoCount, setInsumoCount] = useState(0);
@@ -25,14 +24,13 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  
   const fetchAnimals = async () => {
     const { data } = await getAllAnimals();
     const list = Array.isArray(data)
       ? data
       : Array.isArray(data?.content)
-      ? data.content
-      : [];
+        ? data.content
+        : [];
 
     setAnimals(list);
     setAnimalCount(list.length);
@@ -42,7 +40,7 @@ export default function DashboardPage() {
     const { data } = await getAllCorral();
     const total = Array.isArray(data)
       ? data.length
-      : data?.totalElements ?? data?.content?.length ?? 0;
+      : (data?.totalElements ?? data?.content?.length ?? 0);
 
     setCorralCount(total);
   };
@@ -51,26 +49,30 @@ export default function DashboardPage() {
     const { data } = await getAllInsumos();
     const total = Array.isArray(data)
       ? data.length
-      : data?.totalElements ?? data?.content?.length ?? 0;
+      : (data?.totalElements ?? data?.content?.length ?? 0);
 
     setInsumoCount(total);
   };
 
   const fetchConsumoMensual = async () => {
     const res = await getConsumoMensualFeedlot(6);
-  
 
-    const adaptado = res.data.map((d) => ({
-      mes: new Date(d.mes).toLocaleString("es-AR", {
-        month: "short",
-        year: "numeric",
-      }),
-      consumo: Number(d.consumoKg),
-    }));
+    const adaptado = res.data.map((d) => {
+      const [year, month] = d.mes.split("-");
+
+      const fecha = new Date(Number(year), Number(month) - 1);
+
+      return {
+        mes: fecha.toLocaleString("es-AR", {
+          month: "short",
+          year: "numeric",
+        }),
+        consumo: Number(d.consumoKg),
+      };
+    });
 
     setConsumoMensual(adaptado);
   };
-
 
   useEffect(() => {
     (async () => {
@@ -90,7 +92,6 @@ export default function DashboardPage() {
     })();
   }, []);
 
-  
   useEffect(() => {
     const today = new Date();
 
@@ -104,7 +105,6 @@ export default function DashboardPage() {
     setUpcomingTreatments(upcomings);
   }, [animals]);
 
-  
   const consumoUltimoMes =
     consumoMensual.length > 0
       ? consumoMensual[consumoMensual.length - 1].consumo
@@ -130,14 +130,11 @@ export default function DashboardPage() {
       icono: <FiBox />,
     },
   ];
-  
 
   return (
     <div className="dashboard-page">
       <div className="dashboard-body-container">
         <div className="dashboard-main">
-
-          
           <div className="stats-grid">
             {estadisticas.map((s) => (
               <StatsCard
@@ -150,15 +147,12 @@ export default function DashboardPage() {
           </div>
 
           <div className="dashboard-grid">
-
-          
             <div className="chart-card">
               <h2>Consumo de alimento mensual (kg)</h2>
 
               <div className="card-scroll chart-scroll">
                 {consumoMensual.length > 0 ? (
                   <>
-                  
                     <Chart
                       tipo="line"
                       data={consumoMensual}
@@ -179,7 +173,6 @@ export default function DashboardPage() {
               </div>
             </div>
 
-          
             <div className="treatments-card">
               <h2>Próximos Tratamientos</h2>
 
@@ -202,7 +195,6 @@ export default function DashboardPage() {
                 )}
               </div>
             </div>
-
           </div>
 
           {error && (

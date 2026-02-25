@@ -142,35 +142,46 @@ public class PrediccionService {
         YearMonth desdeMes = mesActual.minusMonths(mesesAtras - 1);
 
         LocalDate desde = desdeMes.atDay(1);
-        LocalDate hasta = mesActual.atEndOfMonth();
+        LocalDate hasta = hoy; // Solo hasta hoy, no fin de mes
 
         List<RegistroComedero> registros =
                 registroComederoRepo.findByFechaBetweenOrderByFechaAsc(desde, hasta);
 
+        // Inicializamos todos los meses en 0 (incluye febrero aunque no tenga datos)
         Map<YearMonth, BigDecimal> consumoPorMes = new TreeMap<>();
         for (int i = 0; i < mesesAtras; i++) {
             consumoPorMes.put(desdeMes.plusMonths(i), BigDecimal.ZERO);
         }
 
         for (RegistroComedero reg : registros) {
-            if (reg.getInsumo() == null ||
-                    reg.getInsumo().getTipo() == null ||
-                    !"ALIMENTO".equalsIgnoreCase(reg.getInsumo().getTipo())) {
+
+            if (reg.getFecha() == null || reg.getInsumo() == null) {
                 continue;
             }
 
-            BigDecimal cant = Optional.ofNullable(reg.getCantidad())
+            String tipo = Optional.ofNullable(reg.getInsumo().getTipo())
+                    .map(String::trim)
+                    .map(String::toUpperCase)
+                    .orElse("");
+
+            if (!"ALIMENTO".equals(tipo)) {
+                continue;
+            }
+
+            BigDecimal cantidad = Optional.ofNullable(reg.getCantidad())
                     .orElse(BigDecimal.ZERO);
 
             YearMonth ym = YearMonth.from(reg.getFecha());
-            consumoPorMes.merge(ym, cant, BigDecimal::add);
+
+            consumoPorMes.merge(ym, cantidad, BigDecimal::add);
         }
 
         List<ConsumoMensualDTO> resultado = new ArrayList<>();
-        for (var e : consumoPorMes.entrySet()) {
+
+        for (Map.Entry<YearMonth, BigDecimal> entry : consumoPorMes.entrySet()) {
             resultado.add(new ConsumoMensualDTO(
-                    e.getKey().atDay(1),
-                    e.getValue().setScale(2, RoundingMode.HALF_UP)
+                    entry.getKey().atDay(1),
+                    entry.getValue().setScale(2, RoundingMode.HALF_UP)
             ));
         }
 

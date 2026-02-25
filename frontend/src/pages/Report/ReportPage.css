@@ -110,8 +110,11 @@
 }
 
 .table-container {
-  overflow-x: auto;
   margin-top: 1rem;
+  max-height: 320px;  
+  overflow-y: auto;
+  overflow-x: auto;
+  border-radius: 0.75rem;
 }
 
 .table-container h3 {
@@ -133,6 +136,13 @@
 
 .list-table thead {
   background: rgba(76, 175, 80, 0.1);
+}
+.list-table thead th {
+  position: sticky;
+  top: 0;
+  background: rgba(76, 175, 80, 0.2);
+  backdrop-filter: blur(2px);
+  z-index: 2;
 }
 
 .list-table-footer td {

@@ -11,5 +11,7 @@ public interface RegistroComederoRepository extends JpaRepository<RegistroComede
     List<RegistroComedero> findByCorral_CorralIdAndFechaBetweenOrderByFechaAsc(
             Integer corralId, LocalDate desde, LocalDate hasta);
 
+    List<RegistroComedero>findAllByOrderByFechaDesc();
+
     List<RegistroComedero> findByFechaBetweenOrderByFechaAsc(LocalDate desde, LocalDate hasta);
 }
