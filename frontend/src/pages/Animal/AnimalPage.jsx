@@ -102,7 +102,7 @@ export default function AnimalPage() {
         !body.fechaNacimiento
       ) {
         setErrorIngreso(
-          "Completa caravana, raza, estado de salud y fecha de nacimiento"
+          "Completa caravana, raza, estado de salud y fecha de nacimiento",
         );
         return;
       }
@@ -132,14 +132,14 @@ export default function AnimalPage() {
           });
         } else {
           console.warn(
-            "No se pudo obtener animalId para crear el pesaje inicial"
+            "No se pudo obtener animalId para crear el pesaje inicial",
           );
         }
       } catch (errPesaje) {
         console.error("Error creando pesaje inicial:", errPesaje);
 
         setMsgIngreso(
-          "Animal creado. ⚠️ No se pudo registrar el pesaje inicial."
+          "Animal creado. ⚠️ No se pudo registrar el pesaje inicial.",
         );
       }
 
@@ -318,11 +318,10 @@ export default function AnimalPage() {
     } catch (e) {
       console.error(e);
       setErrorPesaje(
-        "Error al pesar el animal. Por favor, revise si el número del ID o la caravana son correctos"
+        "Error al pesar el animal. Por favor, revise si el número del ID o la caravana son correctos",
       );
     }
   };
-
 
   const [medicamentos, setMedicamentos] = useState([]);
   useEffect(() => {
@@ -338,7 +337,6 @@ export default function AnimalPage() {
       })();
     }
   }, [activeTab]);
-
 
   const [treatments, setTreatments] = useState([]);
   const [treatmentForm, setTreatmentForm] = useState({
@@ -408,7 +406,7 @@ export default function AnimalPage() {
     } catch (err) {
       console.error(err);
       setErrorTrat(
-        err?.response?.data?.message || "Error al registrar tratamiento"
+        err?.response?.data?.message || "Error al registrar tratamiento",
       );
     }
   };
@@ -604,7 +602,7 @@ export default function AnimalPage() {
             )}
           </div>
         )}
-      
+
         {activeTab === "trazabilidad" && (
           <>
             <div className="trace-card">
@@ -636,11 +634,9 @@ export default function AnimalPage() {
 
               {errorTrace && <p className="trace-error">{errorTrace}</p>}
 
-              
               {traceResult && (
                 <div className="trace-detail">
                   <h3>Animal Nº Caravana: {traceResult.caravana}</h3>
-
 
                   <table className="detail-table">
                     <thead>
@@ -662,9 +658,18 @@ export default function AnimalPage() {
                       <tr>
                         <td>{traceResult.animalId}</td>
                         <td>{traceResult.raza}</td>
-                        <td>{traceResult.edadMeses}{" meses"}</td>
-                        <td>{traceResult.pesoInicial}{" kg"}</td>
-                        <td>{traceResult.pesoActual}{" kg"}</td>
+                        <td>
+                          {traceResult.edadMeses}
+                          {" meses"}
+                        </td>
+                        <td>
+                          {traceResult.pesoInicial}
+                          {" kg"}
+                        </td>
+                        <td>
+                          {traceResult.pesoActual}
+                          {" kg"}
+                        </td>
                         <td>{traceResult.sexo ? "Macho" : "Hembra"}</td>
                         <td>{traceResult.estadoSalud}</td>
                         <td>{traceResult.estado}</td>
@@ -737,7 +742,7 @@ export default function AnimalPage() {
                               </td>
                             ))}
                           </tr>
-                           <tr>
+                          <tr>
                             <td>Motivo</td>
                             {traceResult.tratamientos?.map((t) => (
                               <td key={`dos-${t.registroTratamientoId}`}>
@@ -753,7 +758,6 @@ export default function AnimalPage() {
               )}
             </div>
 
-            
             {showEditDatos && (
               <div className="modal">
                 <div className="modal-content">
@@ -822,7 +826,6 @@ export default function AnimalPage() {
           </>
         )}
 
-        
         {activeTab === "pesaje" && (
           <form className="form-pesaje" onSubmit={handlePesaje}>
             <h2>Pesar Animal</h2>
@@ -961,56 +964,70 @@ export default function AnimalPage() {
           </form>
         )}
 
-      
         {activeTab === "tratamientos" && (
           <div className="treatments-container">
             <h2>Listado de Tratamientos</h2>
-            <div className="treatments-actions">
-              <div className="input-group">
-                <h6>Buscar animal por ID</h6>
-                <input
-                  type="text"
-                  placeholder="🔍 Buscar"
-                  value={animalId}
-                  onChange={(e) => setAnimalId(e.target.value)}
-                />
+            <div className="treatments-filters-card">
+              <h4>Filtros de búsqueda</h4>
+
+              <div className="treatments-actions">
+                <div className="input-group">
+                  <label>ID Animal</label>
+                  <input
+                    type="text"
+                    placeholder="Ej: 1"
+                    value={animalId}
+                    onChange={(e) => setAnimalId(e.target.value)}
+                  />
+                </div>
+
+                <div className="input-group">
+                  <label>Caravana</label>
+                  <input
+                    type="text"
+                    placeholder="Ej: CAR-001"
+                    value={caravana}
+                    onChange={(e) => setCaravana(e.target.value)}
+                  />
+                </div>
+
+                <div className="input-group">
+                  <label>Desde</label>
+                  <input
+                    type="date"
+                    value={fechaDesde}
+                    onChange={(e) => setFechaDesde(e.target.value)}
+                  />
+                </div>
+
+                <div className="input-group">
+                  <label>Hasta</label>
+                  <input
+                    type="date"
+                    value={fechaHasta}
+                    onChange={(e) => setFechaHasta(e.target.value)}
+                  />
+                </div>
+
+                <div className="filters-buttons">
+                  <button className="btn-primary" onClick={handleBuscar}>
+                    Buscar
+                  </button>
+
+                  <button
+                    className="btn-secondary"
+                    onClick={() => {
+                      setAnimalId("");
+                      setCaravana("");
+                      setFechaDesde("");
+                      setFechaHasta("");
+                      handleBuscar();
+                    }}
+                  >
+                    Limpiar
+                  </button>
+                </div>
               </div>
-              <div className="input-group">
-                <h6>Buscar animal por caravana</h6>
-                <input
-                  type="text"
-                  placeholder="🔍 Buscar"
-                  value={caravana}
-                  onChange={(e) => setCaravana(e.target.value)}
-                />
-              </div>
-              <div className="input-group">
-                <h6>Desde</h6>
-                <input
-                  type="date"
-                  value={fechaDesde}
-                  onChange={(e) => setFechaDesde(e.target.value)}
-                />
-              </div>
-              <div className="input-group">
-                <h6>Hasta</h6>
-                <input
-                  type="date"
-                  value={fechaHasta}
-                  onChange={(e) => setFechaHasta(e.target.value)}
-                />
-              </div>
-              <button
-                onClick={() => {
-                  setAnimalId("");
-                  setCaravana("");
-                  setFechaDesde("");
-                  setFechaHasta("");
-                  handleBuscar();
-                }}
-              >
-                Limpiar filtros
-              </button>
             </div>
 
             {loadingListTrat ? (
